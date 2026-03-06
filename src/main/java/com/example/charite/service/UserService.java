@@ -1,7 +1,7 @@
 package com.example.charite.service;
 
 import com.example.charite.dto.RegisterRequest;
-import com.example.charite.entity.Role;
+import com.example.charite.enums.Role;
 import com.example.charite.entity.User;
 import com.example.charite.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;

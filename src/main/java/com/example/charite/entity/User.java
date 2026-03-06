@@ -1,5 +1,6 @@
 package com.example.charite.entity;
 
+import com.example.charite.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
