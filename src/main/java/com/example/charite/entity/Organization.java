@@ -23,23 +23,18 @@ public class Organization {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // nom de l’organisation
     @Column(nullable = false)
     private String name;
 
-    // adresse légale
     @Column(nullable = false)
     private String legalAddress;
 
-    // numéro fiscal
     @Column(name = "tax_number", nullable = false)
     private String taxNumber;
 
-    // contact principal (simple pour l’instant)
     @Column(nullable = false)
     private String mainContact;
 
-    // logo + description
     private String logoUrl;
 
     @Column(length = 2000)
@@ -50,10 +45,14 @@ public class Organization {
     @Column(nullable = false)
     private OrganizationStatus status = OrganizationStatus.PENDING;
 
-
     @Builder.Default
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    // who created this organization (must be ORG_ADMIN)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 
     @PrePersist
     public void prePersist() {

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer une organisation</title>
+</head>
+<body>
+<h2>Nouvelle organisation</h2>
+
+<div th:if="${error}">
+    <p style="color:red" th:text="${error}"></p>
+</div>
+
+<form method="post" th:action="@{/organizations/create}" th:object="${req}">
+    <label>Nom: <input type="text" th:field="*{name}"/></label><br/>
+    <label>Adresse légale: <input type="text" th:field="*{legalAddress}"/></label><br/>
+    <label>Numéro fiscal: <input type="text" th:field="*{taxNumber}"/></label><br/>
+    <label>Contact principal: <input type="text" th:field="*{mainContact}"/></label><br/>
+    <label>Logo URL: <input type="text" th:field="*{logoUrl}"/></label><br/>
+    <label>Description: <textarea th:field="*{description}"></textarea></label><br/>
+    <button type="submit">Créer</button>
+</form>
+
+<a th:href="@{/organizations}">Retour à la liste</a>
+</body>
+</html>

@@ -20,14 +20,14 @@ public class UserService {
 
     public User register(RegisterRequest req) {
 
-        if (userRepository.existsByEmail(req.email)) {
+        if (userRepository.existsByEmail(req.getEmail())) {
             throw new IllegalArgumentException("Email déjà utilisé");
         }
 
         User u = new User();
-        u.setFullName(req.fullName);
-        u.setEmail(req.email);
-        u.setPassword(passwordEncoder.encode(req.password));
+        u.setFullName(req.getFullName());
+        u.setEmail(req.getEmail());
+        u.setPassword(passwordEncoder.encode(req.getPassword()));
         u.setRole(Role.USER);
 
         return userRepository.save(u);
