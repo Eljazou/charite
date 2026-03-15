@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<h2>Login</h2>
+
+<div th:if="${param.registered}">
+    <p style="color:green">Compte créé, vous pouvez vous connecter.</p>
+</div>
+<div th:if="${param.logout}">
+    <p style="color:gray">Vous êtes déconnecté.</p>
+</div>
+<div th:if="${param.error}">
+    <p style="color:red">Email ou mot de passe incorrect.</p>
+</div>
+
+<form method="post" th:action="@{/login}">
+    <label>Email: <input type="email" name="username"/></label><br/>
+    <label>Mot de passe: <input type="password" name="password"/></label><br/>
+    <button type="submit">Se connecter</button>
+</form>
+
+<a th:href="@{/register}">Créer un compte</a>
+</body>
+</html>
