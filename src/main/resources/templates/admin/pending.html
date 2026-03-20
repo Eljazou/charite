@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Demandes en attente</title>
+</head>
+<body>
+<h2>Demandes en attente</h2>
+
+<div th:if="${#lists.isEmpty(changes)}">
+  <p>Aucune demande en attente.</p>
+</div>
+
+<table border="1" th:unless="${#lists.isEmpty(changes)}">
+  <tr>
+    <th>Organisation</th>
+    <th>Type</th>
+    <th>Demandé par</th>
+    <th>Date</th>
+    <th>Nouveaux détails</th>
+    <th>Actions</th>
+  </tr>
+  <tr th:each="change : ${changes}">
+    <td>
+      <span th:if="${change.organization != null}" th:text="${change.organization.name}"></span>
+      <span th:if="${change.organization == null}">Nouvelle organisation</span>
+    </td>
+    <td th:text="${change.type}"></td>
+    <td th:text="${change.requestedBy.fullName}"></td>
+    <td th:text="${change.requestedAt}"></td>
+    <td>
+      <span th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE}">
+          <b>Nom:</b> <span th:text="${change.newName}"></span><br/>
+          <b>Adresse:</b> <span th:text="${change.newLegalAddress}"></span><br/>
+          <b>Contact:</b> <span th:text="${change.newMainContact}"></span><br/>
+          <b>Tax:</b> <span th:text="${change.newTaxNumber}"></span>
+      </span>
+            <span th:if="${change.type.name() == 'UPDATE'}">
+                <b>Nom:</b> <span th:text="${change.newName}"></span><br/>
+                <b>Adresse:</b> <span th:text="${change.newLegalAddress}"></span><br/>
+                <b>Contact:</b> <span th:text="${change.newMainContact}"></span>
+            </span>
+      <span th:if="${change.type.name() == 'DELETE'}">Suppression demandée</span>
+    </td>
+    <td>
+      <form method="post" th:action="@{/admin/approve/{id}(id=${change.id})}">
+        <button type="submit" style="color:green">Approuver</button>
+      </form>
+      <form method="post" th:action="@{/admin/reject/{id}(id=${change.id})}">
+        <button type="submit" style="color:red">Rejeter</button>
+      </form>
+    </td>
+  </tr>
+</table>
+
+<br/>
+<a th:href="@{/organizations}">Retour</a>
+</body>
+</html>

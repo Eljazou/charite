@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Modifier l'organisation</title>
+</head>
+<body>
+<h2>Modifier l'organisation</h2>
+<p style="color:orange">Toute modification sera soumise à l'approbation du super admin.</p>
+
+<div th:if="${error}">
+  <p style="color:red" th:text="${error}"></p>
+</div>
+
+<form method="post" th:action="@{/organizations/edit/{id}(id=${orgId})}" th:object="${req}" enctype="multipart/form-data">
+  <label>Nom: <input type="text" th:field="*{name}"/></label><br/>
+  <label>Adresse légale: <input type="text" th:field="*{legalAddress}"/></label><br/>
+  <label>Numéro fiscal: <input type="text" th:field="*{taxNumber}"/></label><br/>
+  <label>Contact principal: <input type="text" th:field="*{mainContact}"/></label><br/>
+  <label>Logo: <input type="file" name="logoFile" accept="image/*"/></label><br/>
+  <label>Description: <textarea th:field="*{description}"></textarea></label><br/>
+  <button type="submit">Soumettre la modification</button>
+</form>
+
+<a th:href="@{/organizations}">Retour</a>
+</body>
+</html>
