@@ -19,22 +19,39 @@
 
 <table border="1">
     <tr>
+        <th>Logo</th>
         <th>Nom</th>
+
         <th>Adresse légale</th>
         <th>Numéro fiscal</th>
         <th>Contact</th>
         <th>Statut</th>
         <th>Créé par</th>
+        <th>Actions</th>
     </tr>
     <tr th:each="org : ${organizations}">
+        <td>
+            <img th:if="${org.logoUrl != null}" th:src="${org.logoUrl}" width="50" height="50"/>
+            <span th:unless="${org.logoUrl != null}">-</span>
+        </td>
         <td th:text="${org.name}"></td>
+
         <td th:text="${org.legalAddress}"></td>
         <td th:text="${org.taxNumber}"></td>
         <td th:text="${org.mainContact}"></td>
         <td th:text="${org.status}"></td>
         <td th:text="${org.createdBy.fullName}"></td>
+        <td>
+            <a th:href="@{/organizations/edit/{id}(id=${org.id})}">Modifier</a>
+            <form method="post" th:action="@{/organizations/delete/{id}(id=${org.id})}" style="display:inline">
+                <button type="submit" onclick="return confirm('Confirmer la demande de suppression ?')">Supprimer</button>
+            </form>
+        </td>
     </tr>
 </table>
+<div th:if="${param.createRequested}">
+    <p style="color:orange">Demande de création soumise, en attente d'approbation du super admin.</p>
+</div>
 
 <br/>
 <form method="post" th:action="@{/logout}">

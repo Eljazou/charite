@@ -29,11 +29,20 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/organizations").authenticated()
                         .requestMatchers(HttpMethod.POST, "/organizations/create").hasRole("ORG_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/organizations/create").hasRole("ORG_ADMIN")
+                        .requestMatchers("/admin/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/organizations", true)
+                        .successHandler((request, response, authentication) -> {
+                            boolean isSuperAdmin = authentication.getAuthorities().stream()
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+                            if (isSuperAdmin) {
+                                response.sendRedirect("/admin/pending");
+                            } else {
+                                response.sendRedirect("/organizations");
+                            }
+                        })
                         .permitAll()
                 )
                 .logout(logout -> logout

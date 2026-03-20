@@ -11,12 +11,12 @@
     <p style="color:red" th:text="${error}"></p>
 </div>
 
-<form method="post" th:action="@{/organizations/create}" th:object="${req}">
+<form method="post" th:action="@{/organizations/create}" th:object="${req}" enctype="multipart/form-data">
     <label>Nom: <input type="text" th:field="*{name}"/></label><br/>
     <label>Adresse légale: <input type="text" th:field="*{legalAddress}"/></label><br/>
     <label>Numéro fiscal: <input type="text" th:field="*{taxNumber}"/></label><br/>
     <label>Contact principal: <input type="text" th:field="*{mainContact}"/></label><br/>
-    <label>Logo URL: <input type="text" th:field="*{logoUrl}"/></label><br/>
+    <label>Logo: <input type="file" name="logoFile" accept="image/*"/></label><br/>
     <label>Description: <textarea th:field="*{description}"></textarea></label><br/>
     <button type="submit">Créer</button>
 </form>
