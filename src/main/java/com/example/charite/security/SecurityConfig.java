@@ -30,6 +30,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/organizations/create").hasRole("ORG_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/organizations/create").hasRole("ORG_ADMIN")
                         .requestMatchers("/admin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/actions/create", "/actions/my").hasRole("ORG_ADMIN")
+                        .requestMatchers("/actions/**").authenticated()
+                        .requestMatchers("/actions").authenticated()
+                        .requestMatchers("/dashboard/**").hasRole("ORG_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -37,10 +41,14 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
                             boolean isSuperAdmin = authentication.getAuthorities().stream()
                                     .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+                            boolean isOrgAdmin = authentication.getAuthorities().stream()
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ORG_ADMIN"));
                             if (isSuperAdmin) {
                                 response.sendRedirect("/admin/pending");
+                            } else if (isOrgAdmin) {
+                                response.sendRedirect("/dashboard");
                             } else {
-                                response.sendRedirect("/organizations");
+                                response.sendRedirect("/actions");
                             }
                         })
                         .permitAll()

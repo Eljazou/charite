@@ -3,5 +3,6 @@ package com.example.charite.enums;
 public enum PendingChangeType {
     CREATE,
     UPDATE,
-    DELETE
+    DELETE,
+    CREATE_ACTION
 }

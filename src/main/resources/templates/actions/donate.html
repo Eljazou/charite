@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Faire un don</title>
+</head>
+<body>
+<h2>Faire un don pour : <span th:text="${action.title}"></span></h2>
+
+<div th:if="${error}">
+  <p style="color:red" th:text="${error}"></p>
+</div>
+
+<form method="post" th:action="@{/actions/{id}/donate(id=${action.id})}" th:object="${req}">
+  <label>Montant (MAD): <input type="number" step="0.01" th:field="*{amount}"/></label><br/>
+  <label>Message:
+    <textarea th:field="*{message}"></textarea>
+  </label><br/>
+  <label>Méthode de paiement:
+    <select th:field="*{paymentMethod}">
+      <option th:each="method : ${paymentMethods}"
+              th:value="${method}"
+              th:text="${method}">
+      </option>
+    </select>
+  </label><br/>
+  <button type="submit">Confirmer le don</button>
+</form>
+
+<a th:href="@{/actions}">Retour</a>
+</body>
+</html>

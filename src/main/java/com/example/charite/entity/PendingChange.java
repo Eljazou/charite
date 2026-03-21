@@ -4,6 +4,9 @@ import com.example.charite.enums.PendingChangeStatus;
 import com.example.charite.enums.PendingChangeType;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -49,4 +52,18 @@ public class PendingChange {
     @Builder.Default
     @Column(nullable = false)
     private LocalDateTime requestedAt = LocalDateTime.now();
+    // pour CREATE_ACTION
+    private String actionTitle;
+
+    @Column(length = 3000)
+    private String actionDescription;
+
+    private String actionLocation;
+    private LocalDate actionStartDate;
+    private LocalDate actionEndDate;
+    private BigDecimal actionGoalAmount;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "charity_action_id", nullable = true)
+    private CharityAction charityAction;
 }

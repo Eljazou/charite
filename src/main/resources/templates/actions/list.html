@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Actions de charité</title>
+</head>
+<body>
+<h2>Actions de charité</h2>
+
+<div th:if="${param.donated}">
+  <p style="color:green">Don effectué avec succès !</p>
+</div>
+
+<div th:if="${#lists.isEmpty(actions)}">
+  <p>Aucune action active pour l'instant.</p>
+</div>
+
+<div th:each="action : ${actions}">
+  <h3 th:text="${action.title}"></h3>
+  <p>Organisation: <span th:text="${action.organization.name}"></span></p>
+  <p>Lieu: <span th:text="${action.location}"></span></p>
+  <p>
+    Collecté: <span th:text="${action.collectedAmount}"></span> /
+    <span th:text="${action.goalAmount}"></span> MAD
+  </p>
+  <!-- first image preview if exists -->
+  <div th:each="media : ${action.mediaList}">
+    <img th:if="${media.mediaType == T(com.example.charite.enums.MediaType).IMAGE}"
+         th:src="${media.filePath}" width="150"/>
+  </div>
+  <a th:href="@{/actions/{id}(id=${action.id})}">Voir les détails</a>
+  <hr/>
+</div>
+</body>
+</html>

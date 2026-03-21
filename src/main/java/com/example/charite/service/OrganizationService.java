@@ -13,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +59,8 @@ public class OrganizationService {
     public List<Organization> findByUser(String email) {
         User caller = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-        return organizationRepository.findByCreatedBy(caller);
+        Optional<Organization> org = organizationRepository.findByCreatedBy(caller);
+        return org.map(Collections::singletonList).orElse(Collections.emptyList());
     }
     public Organization findById(Long id) {
         return organizationRepository.findById(id)
