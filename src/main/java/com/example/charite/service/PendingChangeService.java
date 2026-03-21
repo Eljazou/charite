@@ -2,11 +2,14 @@ package com.example.charite.service;
 
 import com.example.charite.dto.OrganizationCreateRequest;
 import com.example.charite.dto.OrganizationUpdateRequest;
+import com.example.charite.entity.CharityAction;
 import com.example.charite.entity.Organization;
 import com.example.charite.entity.PendingChange;
 import com.example.charite.entity.User;
+import com.example.charite.enums.CharityActionStatus;
 import com.example.charite.enums.PendingChangeStatus;
 import com.example.charite.enums.PendingChangeType;
+import com.example.charite.repository.CharityActionRepository;
 import com.example.charite.repository.OrganizationRepository;
 import com.example.charite.repository.PendingChangeRepository;
 import com.example.charite.repository.UserRepository;
@@ -23,6 +26,7 @@ public class PendingChangeService {
     private final PendingChangeRepository pendingChangeRepository;
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
+    private final CharityActionRepository charityActionRepository;
 
 
     public void requestCreate(OrganizationCreateRequest req, String email) {
@@ -116,6 +120,10 @@ public class PendingChangeService {
             org.setLogoUrl(change.getNewLogoUrl());
             org.setDescription(change.getNewDescription());
             organizationRepository.save(org);
+        } else if (change.getType() == PendingChangeType.CREATE_ACTION) {
+            CharityAction action = change.getCharityAction();
+            action.setStatus(CharityActionStatus.ACTIVE);
+            charityActionRepository.save(action);
         }
 
         change.setStatus(PendingChangeStatus.APPROVED);

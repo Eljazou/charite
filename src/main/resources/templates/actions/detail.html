@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${action.title}">Détail action</title>
+</head>
+<body>
+
+<h2 th:text="${action.title}"></h2>
+<p>Organisation: <strong th:text="${action.organization.name}"></strong></p>
+<p>Lieu: <span th:text="${action.location}"></span></p>
+<p>Du <span th:text="${action.startDate}"></span> au <span th:text="${action.endDate}"></span></p>
+<p th:text="${action.description}"></p>
+
+<h4>Progression</h4>
+<p>
+    <strong th:text="${action.collectedAmount}"></strong> MAD collectés sur
+    <strong th:text="${action.goalAmount}"></strong> MAD
+</p>
+<p>Nombre de dons: <strong th:text="${donationCount}"></strong></p>
+
+<h4>Médias</h4>
+<div th:each="media : ${action.mediaList}">
+    <img th:if="${media.mediaType == T(com.example.charite.enums.MediaType).IMAGE}"
+         th:src="${media.filePath}" width="300"/><br/>
+    <video th:if="${media.mediaType == T(com.example.charite.enums.MediaType).VIDEO}"
+           th:src="${media.filePath}" width="400" controls></video>
+</div>
+
+<br/>
+<a th:href="@{/actions/{id}/donate(id=${action.id})}">
+    <button>Faire un don</button>
+</a>
+
+<br/><br/>
+<a th:href="@{/actions}">Retour à la liste</a>
+
+</body>
+</html>

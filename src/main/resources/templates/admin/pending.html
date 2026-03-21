@@ -24,6 +24,9 @@
     <td>
       <span th:if="${change.organization != null}" th:text="${change.organization.name}"></span>
       <span th:if="${change.organization == null}">Nouvelle organisation</span>
+        <span th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE_ACTION}"
+              th:text="${change.charityAction != null ? change.charityAction.organization.name : '-'}">
+        </span>
     </td>
     <td th:text="${change.type}"></td>
     <td th:text="${change.requestedBy.fullName}"></td>
@@ -41,6 +44,10 @@
                 <b>Contact:</b> <span th:text="${change.newMainContact}"></span>
             </span>
       <span th:if="${change.type.name() == 'DELETE'}">Suppression demandée</span>
+        <span th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE_ACTION}">
+            <b>Action:</b> <span th:text="${change.actionTitle}"></span><br/>
+            <b>Objectif:</b> <span th:text="${change.charityAction != null ? change.charityAction.goalAmount : '-'}"></span> MAD
+        </span>
     </td>
     <td>
       <form method="post" th:action="@{/admin/approve/{id}(id=${change.id})}">

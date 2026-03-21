@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .cards { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px; }
+        .card { background: #f4f4f4; border-radius: 8px; padding: 20px; min-width: 180px; text-align: center; }
+        .card h3 { margin: 0 0 10px; font-size: 14px; color: #666; }
+        .card p { margin: 0; font-size: 28px; font-weight: bold; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f0f0f0; }
+        .progress-bar-bg { background: #ddd; border-radius: 4px; height: 12px; }
+        .progress-bar { background: #4CAF50; height: 12px; border-radius: 4px; }
+        .badge-pending { color: orange; font-weight: bold; }
+        .badge-active { color: green; font-weight: bold; }
+        .badge-closed { color: gray; font-weight: bold; }
+        .badge-rejected { color: red; font-weight: bold; }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+<h1>Dashboard — <span th:text="${stats.organization.name}"></span></h1>
+<p>Statut organisation:
+    <span th:text="${stats.organization.status}"
+          th:classappend="${stats.organization.status.name() == 'ACTIVE'} ? 'badge-active' :
+                          (${stats.organization.status.name() == 'PENDING'} ? 'badge-pending' : 'badge-rejected')">
+    </span>
+</p>
+
+<!-- STAT CARDS -->
+<div class="cards">
+    <div class="card">
+        <h3>Total actions</h3>
+        <p th:text="${stats.totalActions}"></p>
+    </div>
+    <div class="card">
+        <h3>Total collecté</h3>
+        <p><span th:text="${stats.totalCollected}"></span> MAD</p>
+    </div>
+    <div class="card">
+        <h3>Objectif total</h3>
+        <p><span th:text="${stats.totalGoal}"></span> MAD</p>
+    </div>
+    <div class="card">
+        <h3>Total dons</h3>
+        <p th:text="${stats.recentDonations.size()}"></p>
+    </div>
+</div>
+
+<!-- ACTIONS PROGRESS -->
+<h2>Progression des actions</h2>
+<div th:if="${#lists.isEmpty(stats.actions)}">
+    <p>Aucune action pour l'instant. <a th:href="@{/actions/create}">Créer une action</a></p>
+</div>
+<table th:unless="${#lists.isEmpty(stats.actions)}">
+    <tr>
+        <th>Titre</th>
+        <th>Statut</th>
+        <th>Collecté</th>
+        <th>Objectif</th>
+        <th>Progression</th>
+        <th>Début</th>
+        <th>Fin</th>
+    </tr>
+    <tr th:each="action : ${stats.actions}">
+        <td th:text="${action.title}"></td>
+        <td>
+            <span th:text="${action.status}"
+                  th:class="${action.status.name() == 'ACTIVE'} ? 'badge-active' :
+                             (${action.status.name() == 'PENDING_APPROVAL'} ? 'badge-pending' :
+                             (${action.status.name() == 'REJECTED'} ? 'badge-rejected' : 'badge-closed'))">
+            </span>
+        </td>
+        <td th:text="${action.collectedAmount}"></td>
+        <td th:text="${action.goalAmount}"></td>
+        <td>
+            <div class="progress-bar-bg">
+                <div class="progress-bar"
+                     th:with="pct=${action.goalAmount.signum() > 0 ?
+                 action.collectedAmount.multiply(#numbers.formatDecimal(100,1,0)).divide(action.goalAmount, 0, T(java.math.RoundingMode).HALF_UP) : 0}"
+                     th:style="'width:' + ${pct} + '%'">
+                </div>
+            </div>
+            <small th:text="${action.goalAmount.signum() > 0 ?
+        action.collectedAmount.divide(action.goalAmount, 2, T(java.math.RoundingMode).HALF_UP).multiply(100).intValue() + '%'
+        : '0%'}">
+            </small>
+        </td>
+        <td th:text="${action.startDate}"></td>
+        <td th:text="${action.endDate}"></td>
+    </tr>
+</table>
+
+<!-- PAYMENT METHODS -->
+<h2>Dons par méthode de paiement</h2>
+<div th:if="${stats.donationsByPaymentMethod.isEmpty()}">
+    <p>Aucun don reçu pour l'instant.</p>
+</div>
+<table th:unless="${stats.donationsByPaymentMethod.isEmpty()}">
+    <tr>
+        <th>Méthode</th>
+        <th>Nombre de dons</th>
+    </tr>
+    <tr th:each="entry : ${stats.donationsByPaymentMethod}">
+        <td th:text="${entry.key}"></td>
+        <td th:text="${entry.value}"></td>
+    </tr>
+</table>
+
+<!-- RECENT DONATIONS -->
+<h2>Derniers dons</h2>
+<div th:if="${#lists.isEmpty(stats.recentDonations)}">
+    <p>Aucun don reçu pour l'instant.</p>
+</div>
+<table th:unless="${#lists.isEmpty(stats.recentDonations)}">
+    <tr>
+        <th>Donateur</th>
+        <th>Action</th>
+        <th>Montant</th>
+        <th>Méthode</th>
+        <th>Message</th>
+        <th>Date</th>
+        <th>Statut</th>
+    </tr>
+    <tr th:each="donation : ${stats.recentDonations}">
+        <td th:text="${donation.user.fullName}"></td>
+        <td th:text="${donation.charityAction.title}"></td>
+        <td th:text="${donation.amount}"> MAD</td>
+        <td th:text="${donation.paymentMethod}"></td>
+        <td th:text="${donation.message != null ? donation.message : '-'}"></td>
+        <td th:text="${donation.donationDate}"></td>
+        <td th:text="${donation.status}"></td>
+    </tr>
+</table>
+
+<br/>
+<a th:href="@{/actions/create}">+ Nouvelle action</a> |
+<a th:href="@{/organizations}">Mon organisation</a> |
+<form method="post" th:action="@{/logout}" style="display:inline">
+    <button type="submit">Se déconnecter</button>
+</form>
+
+</body>
+</html>

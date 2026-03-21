@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Mes actions</title>
+</head>
+<body>
+<h2>Mes actions de charité</h2>
+
+<div th:if="${param.submitted}">
+  <p style="color:orange">Action soumise, en attente d'approbation.</p>
+</div>
+
+<a th:href="@{/actions/create}">+ Nouvelle action</a><br/><br/>
+
+<div th:if="${#lists.isEmpty(actions)}">
+  <p>Aucune action pour l'instant.</p>
+</div>
+
+<table border="1" th:unless="${#lists.isEmpty(actions)}">
+  <tr>
+    <th>Titre</th>
+    <th>Lieu</th>
+    <th>Objectif</th>
+    <th>Collecté</th>
+    <th>Statut</th>
+    <th>Date début</th>
+    <th>Date fin</th>
+  </tr>
+  <tr th:each="action : ${actions}">
+    <td th:text="${action.title}"></td>
+    <td th:text="${action.location}"></td>
+    <td th:text="${action.goalAmount}"></td>
+    <td th:text="${action.collectedAmount}"></td>
+    <td th:text="${action.status}"></td>
+    <td th:text="${action.startDate}"></td>
+    <td th:text="${action.endDate}"></td>
+  </tr>
+</table>
+
+<br/>
+<a th:href="@{/organizations}">Retour</a>
+</body>
+</html>

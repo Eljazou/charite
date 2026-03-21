@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Créer une action</title>
+</head>
+<body>
+<h2>Nouvelle action de charité</h2>
+<p style="color:orange">Cette action sera soumise à l'approbation du super admin.</p>
+
+<div th:if="${error}">
+  <p style="color:red" th:text="${error}"></p>
+</div>
+
+<form method="post" th:action="@{/actions/create}" th:object="${req}" enctype="multipart/form-data">
+  <label>Titre: <input type="text" th:field="*{title}"/></label><br/>
+  <label>Description: <textarea th:field="*{description}"></textarea></label><br/>
+  <label>Lieu: <input type="text" th:field="*{location}"/></label><br/>
+  <label>Date début: <input type="date" th:field="*{startDate}"/></label><br/>
+  <label>Date fin: <input type="date" th:field="*{endDate}"/></label><br/>
+  <label>Objectif (MAD): <input type="number" step="0.01" th:field="*{goalAmount}"/></label><br/>
+  <label>Images: <input type="file" name="images" multiple accept="image/*"/></label><br/>
+  <label>Vidéos: <input type="file" name="videos" multiple accept="video/*"/></label><br/>
+  <button type="submit">Soumettre</button>
+</form>
+
+<a th:href="@{/actions/my}">Retour</a>
+</body>
+</html>
