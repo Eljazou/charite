@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>PayPal</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 80px; }
+    .paypal { color: #003087; font-size: 40px; }
+    .btn { background: #FFC439; color: #003087; padding: 12px 24px; font-weight: bold;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+  </style>
+</head>
+<body>
+<div class="paypal">PayPal</div>
+<h2>Paiement PayPal</h2>
+<p>L'intégration PayPal sera disponible prochainement.</p>
+<p>Action: <strong th:text="${action.title}"></strong></p>
+<a th:href="@{/actions}"><button class="btn">Retour aux actions</button></a>
+</body>
+</html>

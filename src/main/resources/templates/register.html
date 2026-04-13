@@ -1,23 +1,118 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html class="light" lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Register</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PhilanthroLink - Inscription</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#0053db",
+                        "on-surface": "#00345e",
+                        "on-surface-variant": "#306197",
+                        "background": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-primary-gradient {
+            background: linear-gradient(135deg, #0053db 0%, #0048c1 100%);
+        }
+        .ambient-shadow {
+            box-shadow: 0 12px 40px rgba(0, 52, 94, 0.08);
+        }
+    </style>
 </head>
-<body>
-<h2>Créer un compte</h2>
+<body class="bg-background text-on-surface min-h-screen flex items-center justify-center p-6">
 
-<div th:if="${error}">
-    <p style="color:red" th:text="${error}"></p>
+<div class="w-full max-w-md">
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-gradient text-white mb-4 shadow-xl shadow-primary/20">
+            <span class="material-symbols-outlined text-3xl">volunteer_activism</span>
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 headline">Rejoignez-nous</h1>
+        <p class="text-on-surface-variant font-medium mt-1">Créez votre compte PhilanthroLink</p>
+    </div>
+
+    <div class="bg-white rounded-3xl p-8 ambient-shadow border border-slate-50">
+
+        <div th:if="${error}" class="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3">
+            <span class="material-symbols-outlined text-red-600 text-sm">warning</span>
+            <p class="text-red-700 text-sm font-medium" th:text="${error}"></p>
+        </div>
+
+        <form method="post" th:action="@{/register}" th:object="${req}" class="space-y-5">
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">Nom complet</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">person</span>
+                    <input type="text" th:field="*{fullName}" required
+                           class="w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-sm outline-none transition-all"
+                           placeholder="Prénom et Nom"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">Email professionnel</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">alternate_email</span>
+                    <input type="email" th:field="*{email}" required
+                           class="w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-sm outline-none transition-all"
+                           placeholder="exemple@domaine.com"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">Mot de passe</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">lock</span>
+                    <input type="password" th:field="*{password}" required
+                           class="w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-sm outline-none transition-all"
+                           placeholder="••••••••"/>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit"
+                        class="w-full py-4 bg-primary-gradient text-white rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all">
+                    Créer mon compte
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+            <p class="text-sm text-on-surface-variant">
+                Déjà un compte ?
+                <a th:href="@{/login}" class="text-primary font-bold hover:underline underline-offset-4 ml-1">Se connecter</a>
+            </p>
+        </div>
+    </div>
+
+    <p class="text-center mt-8 text-xs text-slate-400 font-medium italic">
+        En vous inscrivant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.
+    </p>
 </div>
 
-<form method="post" th:action="@{/register}" th:object="${req}">
-    <label>Nom complet: <input type="text" th:field="*{fullName}"/></label><br/>
-    <label>Email: <input type="email" th:field="*{email}"/></label><br/>
-    <label>Mot de passe: <input type="password" th:field="*{password}"/></label><br/>
-    <button type="submit">S'inscrire</button>
-</form>
-\
-<a th:href="@{/login}">Déjà un compte ? Se connecter</a>
 </body>
 </html>

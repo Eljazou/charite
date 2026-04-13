@@ -7,6 +7,7 @@ import com.example.charite.entity.Organization;
 import com.example.charite.entity.PendingChange;
 import com.example.charite.entity.User;
 import com.example.charite.enums.CharityActionStatus;
+import com.example.charite.enums.OrganizationStatus;
 import com.example.charite.enums.PendingChangeStatus;
 import com.example.charite.enums.PendingChangeType;
 import com.example.charite.repository.CharityActionRepository;
@@ -16,6 +17,7 @@ import com.example.charite.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -90,6 +92,7 @@ public class PendingChangeService {
     }
 
     // SUPER_ADMIN approves
+    @Transactional
     public void approve(Long changeId) {
         PendingChange change = getChange(changeId);
 
@@ -104,12 +107,23 @@ public class PendingChangeService {
                     .logoUrl(change.getNewLogoUrl())
                     .description(change.getNewDescription())
                     .createdBy(creator)
+                    .status(OrganizationStatus.APPROVED) // ← cette ligne doit être là
                     .build();
 
             organizationRepository.save(org);
+        }else if (change.getType() == PendingChangeType.DELETE) {
+            Organization org = organizationRepository.findById(change.getOrganization().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Organisation introuvable"));
 
-        } else if (change.getType() == PendingChangeType.DELETE) {
-            organizationRepository.delete(change.getOrganization());
+            // detach the pending change from the org first
+            change.setOrganization(null);
+            pendingChangeRepository.save(change);
+
+            organizationRepository.delete(org);
+
+            change.setStatus(PendingChangeStatus.APPROVED);
+            pendingChangeRepository.save(change);
+            return;
 
         } else if (change.getType() == PendingChangeType.UPDATE) {
             Organization org = change.getOrganization();
@@ -124,6 +138,18 @@ public class PendingChangeService {
             CharityAction action = change.getCharityAction();
             action.setStatus(CharityActionStatus.ACTIVE);
             charityActionRepository.save(action);
+        } else if (change.getType() == PendingChangeType.UPDATE_ACTION) {
+            CharityAction action = change.getCharityAction();
+            action.setTitle(change.getActionTitle());
+            action.setDescription(change.getActionDescription());
+            action.setLocation(change.getActionLocation());
+            action.setStartDate(change.getActionStartDate());
+            action.setEndDate(change.getActionEndDate());
+            action.setGoalAmount(change.getActionGoalAmount());
+            charityActionRepository.save(action);
+
+        } else if (change.getType() == PendingChangeType.DELETE_ACTION) {
+            charityActionRepository.delete(change.getCharityAction());
         }
 
         change.setStatus(PendingChangeStatus.APPROVED);

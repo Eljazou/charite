@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Don confirmé</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 80px; }
+    .success { color: #4CAF50; font-size: 60px; }
+    .btn { background: #4CAF50; color: white; padding: 12px 24px;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+  </style>
+</head>
+<body>
+<div class="success">✓</div>
+<h2>Don confirmé avec succès !</h2>
+<p>Merci pour votre contribution à <strong th:text="${action.title}"></strong></p>
+<a th:href="@{/actions}"><button class="btn">Retour aux actions</button></a>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<body>
+
+<aside th:fragment="sidebar" class="h-screen w-64 fixed left-0 top-0 flex flex-col py-6 px-4 bg-white border-r border-slate-100 z-50">
+
+    <div class="mb-8 px-2">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-primary-gradient flex items-center justify-center text-white">
+                <span class="material-symbols-outlined">volunteer_activism</span>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-slate-900">Charite</h1>
+            </div>
+        </div>
+    </div>
+
+    <nav class="flex-1 space-y-1">
+        <div sec:authorize="hasRole('ORG_ADMIN')">
+            <a th:href="@{/dashboard}"
+               th:classappend="${currentUrl == '/dashboard'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Tableau de bord</span>
+            </a>
+            <a th:href="@{/organizations}"
+               th:classappend="${currentUrl == '/organizations'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
+                <span class="material-symbols-outlined">corporate_fare</span>
+                <span>Organisation</span>
+            </a>
+            <a th:href="@{/actions/my}"
+               th:classappend="${currentUrl == '/actions/my'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
+                <span class="material-symbols-outlined">rocket_launch</span>
+                <span>Mes Actions</span>
+            </a>
+            <a th:href="@{/actions/create}"
+               th:classappend="${currentUrl == '/actions/create'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span>Nouvelle Action</span>
+            </a>
+        </div>
+
+        <div sec:authorize="hasRole('USER')">
+            <a th:href="@{/actions}"
+               th:classappend="${currentUrl == '/actions'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
+                <span class="material-symbols-outlined">bolt</span>
+                <span>Actions</span>
+            </a>
+            <a th:href="@{/actions/my-donations}"
+               th:classappend="${currentUrl == '/actions/my-donations'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
+                <span class="material-symbols-outlined">volunteer_activism</span>
+                <span>Mes Dons</span>
+            </a>
+        </div>
+
+
+        <div sec:authorize="hasRole('SUPER_ADMIN')">
+            <a th:href="@{/admin/pending}"
+               th:classappend="${currentUrl == '/admin/pending'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
+                <span class="material-symbols-outlined">admin_panel_settings</span>
+                <span>Demandes</span>
+            </a>
+            <a th:href="@{/admin/users}"
+               th:classappend="${currentUrl == '/admin/users'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
+                <span class="material-symbols-outlined">group</span>
+                <span>Utilisateurs</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="mt-auto pt-4 border-t border-slate-100">
+        <form method="post" th:action="@{/logout}">
+            <button type="submit" class="flex items-center gap-3 px-3 py-2.5 w-full text-red-500 hover:bg-red-50 rounded-lg transition-colors font-medium">
+                <span class="material-symbols-outlined">logout</span>
+                <span>Déconnexion</span>
+            </button>
+        </form>
+    </div>
+
+</aside>
+
+</body>
+</html>

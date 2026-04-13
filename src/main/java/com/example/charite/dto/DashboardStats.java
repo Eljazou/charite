@@ -20,4 +20,5 @@ public class DashboardStats {
     private List<CharityAction> actions;
     private List<Donation> recentDonations;
     private Map<String, Long> donationsByPaymentMethod;
+    private Map<Long, Integer> actionProgress;
 }

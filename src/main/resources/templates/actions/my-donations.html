@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Mes Dons | Charite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0053db", "on-surface": "#00345e",
+                        "on-surface-variant": "#306197", "surface-container-low": "#eff4ff"
+                    },
+                    fontFamily: { "headline": ["Manrope"], "body": ["Inter"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1,h2,h3 { font-family: 'Manrope', sans-serif; }
+        .bg-primary-gradient { background: linear-gradient(135deg, #0053db 0%, #0048c1 100%); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-[#f8f9ff] text-on-surface">
+
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
+
+<header class="fixed top-0 left-64 right-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100">
+    <h2 class="font-bold text-slate-800">Mes Dons</h2>
+    <div class="flex items-center gap-3">
+        <div class="text-right">
+            <p class="text-xs font-bold text-on-surface"
+               th:text="${currentUser != null ? currentUser.fullName : ''}"></p>
+            <p class="text-[10px] text-on-surface-variant">Membre</p>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-xs"
+             th:text="${currentUser != null ? #strings.substring(currentUser.fullName, 0, 1) : 'U'}">U</div>
+    </div>
+</header>
+
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
+
+    <section class="flex justify-between items-end mb-10 mt-6">
+        <div>
+            <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1">Mes Dons</h2>
+            <p class="text-on-surface-variant">Historique de toutes vos contributions.</p>
+        </div>
+        <a th:href="@{/actions}"
+           class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:scale-[1.02] transition-all">
+            <span class="material-symbols-outlined">add_circle</span>
+            Faire un don
+        </a>
+    </section>
+
+    <!-- EMPTY STATE -->
+    <div th:if="${#lists.isEmpty(donations)}"
+         class="flex flex-col items-center justify-center py-24 text-center bg-white rounded-2xl border border-slate-100">
+        <div class="w-20 h-20 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-4xl text-on-surface-variant">volunteer_activism</span>
+        </div>
+        <h3 class="text-xl font-bold text-on-surface mb-2">Aucun don effectué pour l'instant.</h3>
+        <p class="text-on-surface-variant text-sm mb-6">Découvrez les actions de charité et faites votre premier don.</p>
+        <a th:href="@{/actions}"
+           class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined">bolt</span>
+            Voir les actions
+        </a>
+    </div>
+
+    <!-- DONATIONS TABLE -->
+    <div th:unless="${#lists.isEmpty(donations)}" class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+
+        <!-- STATS SUMMARY -->
+        <div class="grid grid-cols-3 gap-0 border-b border-slate-100">
+            <div class="p-6 text-center border-r border-slate-100">
+                <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Total dons</p>
+                <p class="text-3xl font-black text-on-surface" th:text="${donations.size()}">0</p>
+            </div>
+            <div class="p-6 text-center border-r border-slate-100">
+                <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Montant total</p>
+                <p class="text-3xl font-black text-primary"
+                   th:text="${#aggregates.sum(donations.![amount])} + ' MAD'">0 MAD</p>
+            </div>
+            <div class="p-6 text-center">
+                <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Actions soutenues</p>
+                <p class="text-3xl font-black text-on-surface"
+                   th:text="${#lists.size(donations)}">0</p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Action</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Montant</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Méthode</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Message</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Statut</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                <tr th:each="donation : ${donations}" class="hover:bg-slate-50/50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-sm text-on-surface" th:text="${donation.charityAction.title}"></div>
+                        <div class="text-xs text-on-surface-variant" th:text="${donation.charityAction.organization.name}"></div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="font-black text-primary text-sm" th:text="${donation.amount} + ' MAD'"></span>
+                    </td>
+                    <td class="px-6 py-4">
+                            <span class="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-600"
+                                  th:text="${donation.paymentMethod == 'CREDIT_CARD'} ? '💳 Carte' :
+                                            (${donation.paymentMethod == 'PAYPAL'} ? '🅿️ PayPal' : '🏦 Virement')">
+                            </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-on-surface-variant"
+                        th:text="${donation.message != null ? donation.message : '—'}"></td>
+                    <td class="px-6 py-4 text-sm text-on-surface-variant" th:text="${donation.donationDate}"></td>
+                    <td class="px-6 py-4">
+                            <span th:text="${donation.status}"
+                                  th:class="${donation.status.name() == 'COMPLETED'} ? 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700' :
+                                             (${donation.status.name() == 'PENDING'} ? 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700' :
+                                             'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700')">
+                            </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

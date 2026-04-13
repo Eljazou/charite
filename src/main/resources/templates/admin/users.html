@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Utilisateurs | Charite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { "primary": "#0053db", "on-surface": "#00345e", "on-surface-variant": "#306197", "surface-container-low": "#eff4ff" }, fontFamily: { "headline": ["Manrope"], "body": ["Inter"] } } }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    h1,h2,h3 { font-family: 'Manrope', sans-serif; }
+    .bg-primary-gradient { background: linear-gradient(135deg, #0053db 0%, #0048c1 100%); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  </style>
+</head>
+<body class="bg-[#f8f9ff] text-on-surface">
+
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
+
+<header class="fixed top-0 left-64 right-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100">
+  <h2 class="font-bold text-slate-800">Gestion des Utilisateurs</h2>
+  <div class="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-xs">SA</div>
+</header>
+
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
+
+  <div th:if="${param.created}" class="mt-6 mb-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-xl">
+    <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+    <span class="font-medium text-sm">Utilisateur créé avec succès.</span>
+  </div>
+  <div th:if="${param.updated}" class="mt-6 mb-4 flex items-center gap-3 bg-blue-50 border border-blue-200 text-blue-800 px-5 py-3 rounded-xl">
+    <span class="material-symbols-outlined text-blue-600">info</span>
+    <span class="font-medium text-sm">Utilisateur modifié avec succès.</span>
+  </div>
+  <div th:if="${param.deleted}" class="mt-6 mb-4 flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3 rounded-xl">
+    <span class="material-symbols-outlined text-red-600">delete</span>
+    <span class="font-medium text-sm">Utilisateur supprimé.</span>
+  </div>
+
+  <section class="flex justify-between items-end mb-8 mt-6">
+    <div>
+      <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1">Utilisateurs</h2>
+      <p class="text-on-surface-variant">Gérez tous les comptes de la plateforme.</p>
+    </div>
+    <a th:href="@{/admin/users/create}"
+       class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:scale-[1.02] transition-all">
+      <span class="material-symbols-outlined">person_add</span>
+      Nouvel utilisateur
+    </a>
+  </section>
+
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+        <tr class="bg-slate-50 border-b border-slate-100">
+          <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Utilisateur</th>
+          <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Email</th>
+          <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Rôle</th>
+          <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Actions</th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+        <tr th:each="user : ${users}" class="hover:bg-slate-50/50 transition-colors">
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-primary-gradient flex items-center justify-center text-white text-xs font-bold"
+                   th:text="${#strings.substring(user.fullName, 0, 1)}">U</div>
+              <span class="font-bold text-sm" th:text="${user.fullName}"></span>
+            </div>
+          </td>
+          <td class="px-6 py-4 text-sm text-on-surface-variant" th:text="${user.email}"></td>
+          <td class="px-6 py-4">
+                            <span th:text="${user.role}"
+                                  th:class="${user.role.name() == 'SUPER_ADMIN'} ? 'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700' :
+                                             (${user.role.name() == 'ORG_ADMIN'} ? 'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700' :
+                                             'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600')">
+                            </span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <a th:href="@{/admin/users/edit/{id}(id=${user.id})}"
+                 class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-primary bg-surface-container-low hover:bg-blue-100 transition-colors">
+                <span class="material-symbols-outlined text-sm">edit</span>
+                Modifier
+              </a>
+              <form method="post" th:action="@{/admin/users/delete/{id}(id=${user.id})}" class="inline">
+                <button type="submit"
+                        onclick="return confirm('Supprimer cet utilisateur ?')"
+                        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors border-none cursor-pointer">
+                  <span class="material-symbols-outlined text-sm">delete</span>
+                  Supprimer
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

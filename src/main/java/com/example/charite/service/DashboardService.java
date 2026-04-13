@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,9 +26,22 @@ public class DashboardService {
         User caller = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        Organization org = organizationRepository.findByCreatedBy(caller)
-                .orElseThrow(() -> new IllegalArgumentException("Pas d'organisation"));
+        Optional<Organization> orgOpt = organizationRepository.findByCreatedBy(caller);
 
+        if (orgOpt.isEmpty()) {
+            return DashboardStats.builder()
+                    .organization(null)
+                    .totalActions(0)
+                    .totalCollected(BigDecimal.ZERO)
+                    .totalGoal(BigDecimal.ZERO)
+                    .actions(List.of())
+                    .recentDonations(List.of())
+                    .donationsByPaymentMethod(Map.of())
+                    .actionProgress(Map.of())
+                    .build();
+        }
+
+        Organization org = orgOpt.get();
         List<CharityAction> actions = charityActionRepository.findByOrganization(org);
 
         BigDecimal totalCollected = actions.stream()
@@ -46,6 +60,17 @@ public class DashboardService {
                         Collectors.counting()
                 ));
 
+        Map<Long, Integer> actionProgress = actions.stream()
+                .collect(Collectors.toMap(
+                        CharityAction::getId,
+                        a -> a.getGoalAmount().compareTo(BigDecimal.ZERO) > 0
+                                ? a.getCollectedAmount()
+                                .multiply(new BigDecimal(100))
+                                .divide(a.getGoalAmount(), 0, java.math.RoundingMode.HALF_UP)
+                                .intValue()
+                                : 0
+                ));
+
         return DashboardStats.builder()
                 .organization(org)
                 .totalActions((long) actions.size())
@@ -54,6 +79,7 @@ public class DashboardService {
                 .actions(actions)
                 .recentDonations(recentDonations)
                 .donationsByPaymentMethod(donationsByPaymentMethod)
+                .actionProgress(actionProgress)
                 .build();
     }
 }

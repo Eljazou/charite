@@ -26,6 +26,7 @@ public class OrganizationController {
     @GetMapping
     public String list(Model model, Principal principal) {
         model.addAttribute("organizations", organizationService.findByUser(principal.getName()));
+        model.addAttribute("currentUrl", "/organizations");
         return "organizations/list";
     }
 
@@ -37,13 +38,24 @@ public class OrganizationController {
 
     @PostMapping("/create")
     public String create(@ModelAttribute("req") OrganizationCreateRequest req,
+                         @RequestParam(value = "logoFile", required = false) MultipartFile logoFile,
                          Principal principal,
                          Model model) {
         try {
+            if (logoFile != null && !logoFile.isEmpty()) {
+                String fileName = System.currentTimeMillis() + "_" + logoFile.getOriginalFilename();
+                Path uploadPath = Path.of("uploads/logos");
+                Files.createDirectories(uploadPath);
+                Files.copy(logoFile.getInputStream(), uploadPath.resolve(fileName));
+                req.setLogoUrl("/logos/" + fileName);
+            }
             organizationService.create(req, principal.getName());
             return "redirect:/organizations?createRequested";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
+            return "organizations/create";
+        } catch (Exception e) {
+            model.addAttribute("error", "Erreur lors de l'upload du logo");
             return "organizations/create";
         }
     }

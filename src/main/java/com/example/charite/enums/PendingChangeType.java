@@ -4,5 +4,7 @@ public enum PendingChangeType {
     CREATE,
     UPDATE,
     DELETE,
-    CREATE_ACTION
+    CREATE_ACTION,
+    UPDATE_ACTION,
+    DELETE_ACTION
 }

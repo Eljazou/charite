@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Paiement annulé</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 80px; }
+    .cancel { color: #f44336; font-size: 60px; }
+    .btn { background: #f44336; color: white; padding: 12px 24px;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+  </style>
+</head>
+<body>
+<div class="cancel">✗</div>
+<h2>Paiement annulé</h2>
+<p>Votre don pour <strong th:text="${action.title}"></strong> a été annulé.</p>
+<a th:href="@{/actions/{id}/donate(id=${action.id})}">
+  <button class="btn">Réessayer</button>
+</a>
+</body>
+</html>

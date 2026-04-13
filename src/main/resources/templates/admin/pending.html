@@ -1,66 +1,165 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html class="light" lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Demandes en attente</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PhilanthroLink - Demandes en attente</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#0053db",
+                        "on-surface": "#00345e",
+                        "on-surface-variant": "#306197",
+                        "background": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .bg-primary-gradient { background: linear-gradient(135deg, #0053db 0%, #0048c1 100%); }
+        .ambient-shadow { box-shadow: 0 8px 32px rgba(0, 52, 94, 0.04); }
+        tr:last-child { border-bottom: none; }
+    </style>
 </head>
-<body>
-<h2>Demandes en attente</h2>
+<body class="bg-background text-on-surface flex">
 
-<div th:if="${#lists.isEmpty(changes)}">
-  <p>Aucune demande en attente.</p>
-</div>
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
 
-<table border="1" th:unless="${#lists.isEmpty(changes)}">
-  <tr>
-    <th>Organisation</th>
-    <th>Type</th>
-    <th>Demandé par</th>
-    <th>Date</th>
-    <th>Nouveaux détails</th>
-    <th>Actions</th>
-  </tr>
-  <tr th:each="change : ${changes}">
-    <td>
-      <span th:if="${change.organization != null}" th:text="${change.organization.name}"></span>
-      <span th:if="${change.organization == null}">Nouvelle organisation</span>
-        <span th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE_ACTION}"
-              th:text="${change.charityAction != null ? change.charityAction.organization.name : '-'}">
-        </span>
-    </td>
-    <td th:text="${change.type}"></td>
-    <td th:text="${change.requestedBy.fullName}"></td>
-    <td th:text="${change.requestedAt}"></td>
-    <td>
-      <span th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE}">
-          <b>Nom:</b> <span th:text="${change.newName}"></span><br/>
-          <b>Adresse:</b> <span th:text="${change.newLegalAddress}"></span><br/>
-          <b>Contact:</b> <span th:text="${change.newMainContact}"></span><br/>
-          <b>Tax:</b> <span th:text="${change.newTaxNumber}"></span>
-      </span>
-            <span th:if="${change.type.name() == 'UPDATE'}">
-                <b>Nom:</b> <span th:text="${change.newName}"></span><br/>
-                <b>Adresse:</b> <span th:text="${change.newLegalAddress}"></span><br/>
-                <b>Contact:</b> <span th:text="${change.newMainContact}"></span>
-            </span>
-      <span th:if="${change.type.name() == 'DELETE'}">Suppression demandée</span>
-        <span th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE_ACTION}">
-            <b>Action:</b> <span th:text="${change.actionTitle}"></span><br/>
-            <b>Objectif:</b> <span th:text="${change.charityAction != null ? change.charityAction.goalAmount : '-'}"></span> MAD
-        </span>
-    </td>
-    <td>
-      <form method="post" th:action="@{/admin/approve/{id}(id=${change.id})}">
-        <button type="submit" style="color:green">Approuver</button>
-      </form>
-      <form method="post" th:action="@{/admin/reject/{id}(id=${change.id})}">
-        <button type="submit" style="color:red">Rejeter</button>
-      </form>
-    </td>
-  </tr>
-</table>
+<main class="ml-64 flex-1 min-h-screen">
 
-<br/>
-<a th:href="@{/organizations}">Retour</a>
+    <header class="h-16 border-b border-slate-100 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40">
+        <div class="flex items-center gap-4">
+            <h1 class="text-lg font-bold text-slate-800">Panneau d'administration</h1>
+        </div>
+        <div class="flex items-center gap-3 text-slate-500 text-sm font-medium">
+            <span class="material-symbols-outlined text-lg">calendar_today</span>
+            <span th:text="${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy')}">Date</span>
+        </div>
+    </header>
+
+    <div class="p-8 lg:p-10">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="text-3xl font-extrabold tracking-tight headline">Demandes en attente</h2>
+                <p class="text-on-surface-variant mt-1">Modérez les créations et modifications des organisations et actions.</p>
+            </div>
+            <a th:href="@{/organizations}" class="flex items-center gap-2 text-sm font-bold text-primary hover:bg-blue-50 px-4 py-2 rounded-xl transition-all">
+                <span class="material-symbols-outlined text-lg">arrow_back</span>
+                Retour aux organisations
+            </a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(changes)}" class="bg-white rounded-3xl p-20 text-center ambient-shadow border border-slate-50">
+            <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="material-symbols-outlined text-4xl text-slate-300">verified_user</span>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800">Tout est à jour !</h3>
+            <p class="text-slate-500 mt-2">Aucune demande de changement n'est actuellement en attente de validation.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(changes)}" class="bg-white rounded-3xl ambient-shadow border border-slate-50 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50/50 border-b border-slate-100">
+                <tr>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Organisation / Contexte</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Type</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Demandeur</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Nouveaux détails</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-center">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                <tr th:each="change : ${changes}" class="hover:bg-slate-50/30 transition-colors">
+                    <td class="px-6 py-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-primary flex items-center justify-center">
+                                <span class="material-symbols-outlined text-lg">corporate_fare</span>
+                            </div>
+                            <div>
+                                        <span class="block font-bold text-slate-800 text-sm"
+                                              th:if="${change.organization != null}" th:text="${change.organization.name}"></span>
+                                <span class="block font-bold text-blue-600 text-sm"
+                                      th:if="${change.organization == null}">Nouvelle Entité</span>
+                                <span class="block text-[10px] text-slate-400 font-medium uppercase"
+                                      th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE_ACTION}"
+                                      th:text="'Org: ' + ${change.charityAction != null ? change.charityAction.organization.name : '-'}"></span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-5">
+                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tight"
+                                      th:classappend="${change.type.name() == 'DELETE' ? 'bg-red-50 text-red-600' : (change.type.name() == 'CREATE' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600')}"
+                                      th:text="${change.type}">TYPE</span>
+                    </td>
+
+                    <td class="px-6 py-5">
+                        <div class="text-sm">
+                            <p class="font-semibold text-slate-700" th:text="${change.requestedBy.fullName}">Nom</p>
+                            <p class="text-[11px] text-slate-400" th:text="${#temporals.format(change.requestedAt, 'dd/MM/yyyy HH:mm')}">Date</p>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-5">
+                        <div class="text-xs space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <th:block th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE}">
+                                <p><b class="text-slate-500">Nom:</b> <span th:text="${change.newName}"></span></p>
+                                <p><b class="text-slate-500">Adresse:</b> <span th:text="${change.newLegalAddress}"></span></p>
+                                <p><b class="text-slate-500">Tax:</b> <span th:text="${change.newTaxNumber}"></span></p>
+                            </th:block>
+
+                            <th:block th:if="${change.type.name() == 'UPDATE'}">
+                                <p><b class="text-slate-500">Nouveau Nom:</b> <span th:text="${change.newName}"></span></p>
+                                <p><b class="text-slate-500">Nouv. Contact:</b> <span th:text="${change.newMainContact}"></span></p>
+                            </th:block>
+
+                            <th:block th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE_ACTION}">
+                                <p class="text-blue-700 font-bold"><span th:text="${change.actionTitle}"></span></p>
+                                <p><b class="text-slate-500">Objectif:</b> <span th:text="${change.charityAction != null ? change.charityAction.goalAmount : '-'}"></span> MAD</p>
+                            </th:block>
+
+                            <p th:if="${change.type.name() == 'DELETE'}" class="text-red-500 font-bold italic">Demande de suppression définitive</p>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-5">
+                        <div class="flex items-center justify-center gap-2">
+                            <form method="post" th:action="@{/admin/approve/{id}(id=${change.id})}">
+                                <button type="submit" title="Approuver"
+                                        class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center shadow-sm">
+                                    <span class="material-symbols-outlined text-lg">check</span>
+                                </button>
+                            </form>
+                            <form method="post" th:action="@{/admin/reject/{id}(id=${change.id})}">
+                                <button type="submit" title="Rejeter"
+                                        class="w-9 h-9 rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center shadow-sm">
+                                    <span class="material-symbols-outlined text-lg">close</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
 </body>
 </html>

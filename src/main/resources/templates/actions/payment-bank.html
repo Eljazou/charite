@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Virement bancaire</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+    .bank-info { background: #f4f4f4; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .bank-info p { margin: 8px 0; }
+    .btn { background: #2196F3; color: white; padding: 12px 24px;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+  </style>
+</head>
+<body>
+<h2>Virement bancaire</h2>
+<p>Pour finaliser votre don pour <strong th:text="${action.title}"></strong>,
+  veuillez effectuer un virement avec les coordonnées suivantes:</p>
+
+<div class="bank-info">
+  <p><strong>Bénéficiaire:</strong> Charite Association</p>
+  <p><strong>IBAN:</strong> MA64 0114 0000 0067 6121 9014 177</p>
+  <p><strong>BIC:</strong> BMCEMAMC</p>
+  <p><strong>Banque:</strong> Banque Marocaine du Commerce</p>
+  <p><strong>Référence:</strong> DON-<span th:text="${donationId}"></span></p>
+</div>
+
+<p style="color:orange">⚠️ Une fois le virement effectué, cliquez sur "Confirmer" pour valider votre don.</p>
+
+<form method="post" th:action="@{/actions/{id}/donate/bank/confirm(id=${action.id})}">
+  <input type="hidden" name="donationId" th:value="${donationId}"/>
+  <button type="submit" class="btn">J'ai effectué le virement — Confirmer</button>
+</form>
+
+<br/>
+<a th:href="@{/actions}">Annuler</a>
+</body>
+</html>

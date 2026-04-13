@@ -34,6 +34,11 @@ public class SecurityConfig {
                         .requestMatchers("/actions/**").authenticated()
                         .requestMatchers("/actions").authenticated()
                         .requestMatchers("/dashboard/**").hasRole("ORG_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/actions/delete/**").hasRole("ORG_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/actions/edit/**").hasRole("ORG_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/actions/edit/**").hasRole("ORG_ADMIN")
+                        .requestMatchers("/actions/my-donations").hasRole("USER")
+                        .requestMatchers("/admin/users/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

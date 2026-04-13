@@ -19,6 +19,7 @@ public class DashboardController {
     @GetMapping
     public String dashboard(Model model, Principal principal) {
         model.addAttribute("stats", dashboardService.getStats(principal.getName()));
+        model.addAttribute("currentUrl", "/dashboard");
         return "dashboard/index";
     }
 }

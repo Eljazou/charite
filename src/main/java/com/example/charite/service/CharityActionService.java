@@ -126,4 +126,50 @@ public class CharityActionService {
                 .orElseThrow(() -> new IllegalArgumentException("Action introuvable"));
         return donationRepository.findByCharityAction(action).size();
     }
+    public List<CharityAction> search(String query) {
+        if (query == null || query.isBlank()) {
+            return charityActionRepository.findByStatus(CharityActionStatus.ACTIVE);
+        }
+        return charityActionRepository.searchActive(query);
+    }
+
+    public void requestUpdate(Long actionId, CharityActionCreateRequest req,
+                              List<MultipartFile> images, List<MultipartFile> videos,
+                              String email) throws Exception {
+        User caller = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        CharityAction action = charityActionRepository.findById(actionId)
+                .orElseThrow(() -> new IllegalArgumentException("Action introuvable"));
+
+        PendingChange change = PendingChange.builder()
+                .requestedBy(caller)
+                .type(PendingChangeType.UPDATE_ACTION)
+                .charityAction(action)
+                .actionTitle(req.getTitle())
+                .actionDescription(req.getDescription())
+                .actionLocation(req.getLocation())
+                .actionStartDate(req.getStartDate())
+                .actionEndDate(req.getEndDate())
+                .actionGoalAmount(req.getGoalAmount())
+                .build();
+
+        pendingChangeRepository.save(change);
+    }
+
+    public void requestDelete(Long actionId, String email) {
+        User caller = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        CharityAction action = charityActionRepository.findById(actionId)
+                .orElseThrow(() -> new IllegalArgumentException("Action introuvable"));
+
+        PendingChange change = PendingChange.builder()
+                .requestedBy(caller)
+                .type(PendingChangeType.DELETE_ACTION)
+                .charityAction(action)
+                .build();
+
+        pendingChangeRepository.save(change);
+    }
 }

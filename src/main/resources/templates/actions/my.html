@@ -1,44 +1,182 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
 <head>
-  <meta charset="UTF-8">
-  <title>Mes actions</title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Mes Actions | Charite</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#0053db",
+            "on-surface": "#00345e",
+            "on-surface-variant": "#306197",
+            "surface-container-low": "#eff4ff",
+            "outline-variant": "#87b5f0",
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    .bg-primary-gradient { background: linear-gradient(135deg, #0053db 0%, #0048c1 100%); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  </style>
 </head>
-<body>
-<h2>Mes actions de charité</h2>
+<body class="bg-[#f8f9ff] text-on-surface">
 
-<div th:if="${param.submitted}">
-  <p style="color:orange">Action soumise, en attente d'approbation.</p>
-</div>
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
 
-<a th:href="@{/actions/create}">+ Nouvelle action</a><br/><br/>
+<!-- TOPBAR -->
+<header class="fixed top-0 left-64 right-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100">
+  <h2 class="font-bold text-slate-800">Mes Actions</h2>
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-xs"
+         th:text="${currentOrg != null ? #strings.substring(currentOrg.name, 0, 2) : 'AD'}">AD</div>
+  </div>
+</header>
 
-<div th:if="${#lists.isEmpty(actions)}">
-  <p>Aucune action pour l'instant.</p>
-</div>
+<!-- MAIN -->
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
 
-<table border="1" th:unless="${#lists.isEmpty(actions)}">
-  <tr>
-    <th>Titre</th>
-    <th>Lieu</th>
-    <th>Objectif</th>
-    <th>Collecté</th>
-    <th>Statut</th>
-    <th>Date début</th>
-    <th>Date fin</th>
-  </tr>
-  <tr th:each="action : ${actions}">
-    <td th:text="${action.title}"></td>
-    <td th:text="${action.location}"></td>
-    <td th:text="${action.goalAmount}"></td>
-    <td th:text="${action.collectedAmount}"></td>
-    <td th:text="${action.status}"></td>
-    <td th:text="${action.startDate}"></td>
-    <td th:text="${action.endDate}"></td>
-  </tr>
-</table>
+  <!-- SUCCESS BANNER -->
+  <div th:if="${param.submitted}"
+       class="mt-6 mb-6 flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-xl">
+    <span class="material-symbols-outlined text-amber-500" style="font-variation-settings:'FILL' 1;">schedule</span>
+    <span class="font-medium text-sm">Action soumise — en attente d'approbation du super admin.</span>
+  </div>
 
-<br/>
-<a th:href="@{/organizations}">Retour</a>
+  <!-- PAGE HEADER -->
+  <section class="flex justify-between items-end mb-10 mt-6">
+    <div>
+      <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1">Mes Actions de Charité</h2>
+      <p class="text-on-surface-variant">Gérez et suivez toutes vos actions en cours.</p>
+    </div>
+    <a th:href="@{/actions/create}"
+       class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-200 hover:scale-[1.02] transition-all">
+      <span class="material-symbols-outlined">add_circle</span>
+      Nouvelle Action
+    </a>
+  </section>
+
+  <!-- EMPTY STATE -->
+  <div th:if="${#lists.isEmpty(actions)}"
+       class="flex flex-col items-center justify-center py-24 text-center bg-white rounded-2xl border border-slate-100">
+    <div class="w-20 h-20 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
+      <span class="material-symbols-outlined text-4xl text-on-surface-variant">rocket_launch</span>
+    </div>
+    <h3 class="text-xl font-bold text-on-surface mb-2">Aucune action pour l'instant.</h3>
+    <p class="text-on-surface-variant text-sm mb-6">Créez votre première action de charité pour commencer à collecter des dons.</p>
+    <a th:href="@{/actions/create}"
+       class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2">
+      <span class="material-symbols-outlined">add_circle</span>
+      Créer une action
+    </a>
+  </div>
+
+  <!-- ACTIONS GRID -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" th:unless="${#lists.isEmpty(actions)}">
+    <div th:each="action : ${actions}"
+         class="group bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 flex flex-col hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+
+      <!-- IMAGE -->
+      <div class="relative h-44 overflow-hidden bg-slate-100">
+        <div th:each="media, iterStat : ${action.mediaList}" th:if="${iterStat.index == 0}">
+          <img th:if="${media.mediaType == T(com.example.charite.enums.MediaType).IMAGE}"
+               th:src="${media.filePath}"
+               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+               alt="Action Cover"/>
+        </div>
+        <div th:if="${#lists.isEmpty(action.mediaList)}"
+             class="w-full h-full flex items-center justify-center">
+          <span class="material-symbols-outlined text-5xl text-slate-300">image</span>
+        </div>
+
+        <!-- STATUS BADGE -->
+        <div class="absolute top-3 left-3">
+                    <span th:text="${action.status}"
+                          th:class="${action.status.name() == 'ACTIVE'} ? 'bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider' :
+                                     (${action.status.name() == 'PENDING_APPROVAL'} ? 'bg-amber-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider' :
+                                     (${action.status.name() == 'REJECTED'} ? 'bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider' :
+                                     'bg-slate-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider'))">
+                    </span>
+        </div>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="p-5 flex-1 flex flex-col">
+        <div class="flex items-center gap-1 mb-2 text-xs text-on-surface-variant font-medium">
+          <span class="material-symbols-outlined text-sm text-primary">location_on</span>
+          <span th:text="${action.location != null ? action.location : 'Lieu non défini'}">Lieu</span>
+        </div>
+
+        <h3 class="text-base font-bold text-on-surface mb-1 leading-tight" th:text="${action.title}">Titre</h3>
+
+        <div class="flex items-center gap-1 text-xs text-on-surface-variant mb-4">
+          <span class="material-symbols-outlined text-sm">calendar_today</span>
+          <span th:text="${action.startDate} + ' → ' + ${action.endDate}">Dates</span>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="mt-auto">
+          <div class="flex justify-between text-xs font-bold mb-1.5">
+            <span class="text-on-surface-variant">Progression</span>
+            <span class="text-primary" th:text="${action.collectedAmount} + ' / ' + ${action.goalAmount} + ' MAD'">0 / 0 MAD</span>
+          </div>
+          <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
+            <div class="h-full bg-primary-gradient rounded-full"
+                 th:style="'width:' + ${action.goalAmount != null and action.goalAmount.signum() > 0 ? action.collectedAmount.multiply(100).divide(action.goalAmount, 0, T(java.math.RoundingMode).HALF_UP) : 0} + '%'">
+            </div>
+          </div>
+          <!-- FOOTER -->
+          <div class="flex items-center justify-between pt-3 border-t border-slate-50">
+                        <span class="text-xs text-on-surface-variant">
+                            Objectif: <strong class="text-on-surface" th:text="${action.goalAmount} + ' MAD'">0</strong>
+                        </span>
+            <div class="flex items-center gap-4">
+              <a th:href="@{/actions/{id}(id=${action.id})}"
+                 class="text-xs font-bold text-slate-600 hover:text-primary flex items-center gap-1 transition-colors">
+                <span class="material-symbols-outlined text-sm">visibility</span>
+                Voir
+              </a>
+
+              <div sec:authorize="hasRole('ORG_ADMIN')" class="flex items-center gap-3 border-l border-slate-100 pl-3">
+                <a th:href="@{/actions/edit/{id}(id=${action.id})}"
+                   class="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 transition-colors">
+                  <span class="material-symbols-outlined text-sm">edit</span>
+                  Modifier
+                </a>
+
+                <form th:action="@{/actions/delete/{id}(id=${action.id})}" method="post"
+                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette action ?');">
+                  <button type="submit"
+                          class="text-xs font-bold text-red-500 hover:text-red-700 flex items-center gap-1 transition-colors">
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                    Supprimer
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
 </body>
 </html>

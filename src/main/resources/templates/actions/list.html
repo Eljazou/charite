@@ -1,35 +1,159 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
 <head>
-  <meta charset="UTF-8">
-  <title>Actions de charité</title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>PhilanthroLink - Découvrir les Actions</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary": "#0053db",
+            "surface-bright": "#f8f9ff",
+            "on-surface": "#00345e",
+            "on-surface-variant": "#306197",
+            "background": "#f8f9ff",
+            "surface-container-low": "#eff4ff",
+            "surface-container-lowest": "#ffffff",
+            "outline-variant": "#87b5f0",
+            "error": "#9f403d"
+          },
+          "fontFamily": {
+            "headline": ["Manrope"],
+            "body": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .bg-primary-gradient {
+      background: linear-gradient(135deg, #0053db 0%, #0048c1 100%);
+    }
+    .ambient-shadow {
+      box-shadow: 0 8px 32px rgba(0, 52, 94, 0.04);
+    }
+  </style>
 </head>
-<body>
-<h2>Actions de charité</h2>
+<body class="bg-background text-on-surface">
 
-<div th:if="${param.donated}">
-  <p style="color:green">Don effectué avec succès !</p>
-</div>
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
 
-<div th:if="${#lists.isEmpty(actions)}">
-  <p>Aucune action active pour l'instant.</p>
-</div>
-
-<div th:each="action : ${actions}">
-  <h3 th:text="${action.title}"></h3>
-  <p>Organisation: <span th:text="${action.organization.name}"></span></p>
-  <p>Lieu: <span th:text="${action.location}"></span></p>
-  <p>
-    Collecté: <span th:text="${action.collectedAmount}"></span> /
-    <span th:text="${action.goalAmount}"></span> MAD
-  </p>
-  <!-- first image preview if exists -->
-  <div th:each="media : ${action.mediaList}">
-    <img th:if="${media.mediaType == T(com.example.charite.enums.MediaType).IMAGE}"
-         th:src="${media.filePath}" width="150"/>
+<header class="fixed top-0 left-64 right-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100">
+  <form method="get" th:action="@{/actions}" class="flex items-center flex-1 max-w-xl">
+    <div class="relative w-full">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+      <input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-sm outline-none"
+             type="text"
+             name="q"
+             th:value="${query}"
+             placeholder="Rechercher par nom, lieu ou date..."/>
+    </div>
+    <button type="submit"
+            class="ml-2 bg-primary-gradient text-white px-4 py-2 rounded-xl font-bold text-sm">
+      Rechercher
+    </button>
+  </form>
+  <div class="flex items-center gap-4 ml-4">
+    <div class="flex items-center gap-3">
+      <div class="text-right">
+        <p class="text-xs font-bold text-on-surface" sec:authentication="name">user@email.com</p>
+        <p class="text-[10px] text-on-surface-variant">Membre</p>
+      </div>
+      <div class="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-xs"
+           sec:authentication="name"
+           th:text="${#strings.substring(#authentication.name, 0, 1)}">U</div>
+    </div>
   </div>
-  <a th:href="@{/actions/{id}(id=${action.id})}">Voir les détails</a>
-  <hr/>
-</div>
+</header>
+
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
+
+  <div th:if="${param.donated}" class="flex justify-center -mt-4 mb-6">
+    <div class="flex items-center gap-3 bg-white py-3 px-6 rounded-2xl ambient-shadow border border-emerald-100">
+      <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+      </div>
+      <span class="text-on-surface font-medium text-sm">Don effectué avec succès !</span>
+    </div>
+  </div>
+
+  <section class="flex justify-between items-end mb-10">
+    <div>
+      <h2 class="text-4xl font-extrabold tracking-tight text-on-surface headline mb-2">Découvrir les Actions</h2>
+      <p class="text-on-surface-variant text-lg">Soutenez les initiatives locales au Maroc.</p>
+    </div>
+    <a sec:authorize="hasRole('ORG_ADMIN')" th:href="@{/actions/create}" class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all">
+      <span class="material-symbols-outlined">add_circle</span>
+      Nouvelle Action
+    </a>
+  </section>
+
+  <div th:if="${#lists.isEmpty(actions)}" class="flex flex-col items-center justify-center py-24 text-center">
+    <div class="w-24 h-24 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
+      <span class="material-symbols-outlined text-4xl text-on-surface-variant">search_off</span>
+    </div>
+    <h3 class="text-2xl font-bold text-on-surface headline mb-2">Aucune action active pour l'instant.</h3>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    <div th:each="action : ${actions}" class="group bg-white rounded-2xl overflow-hidden ambient-shadow flex flex-col transition-all hover:-translate-y-1 hover:shadow-lg border border-slate-50">
+      <div class="relative h-52 overflow-hidden bg-slate-100">
+        <div th:each="media, iterStat : ${action.mediaList}" th:if="${iterStat.index == 0}">
+          <img th:if="${media.mediaType == T(com.example.charite.enums.MediaType).IMAGE}"
+               th:src="${media.filePath}"
+               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+               alt="Action Cover"/>
+        </div>
+        <div class="absolute top-4 left-4">
+          <span class="bg-white/90 backdrop-blur-md text-primary font-bold text-[10px] px-3 py-1 rounded-full uppercase tracking-widest">Actif</span>
+        </div>
+      </div>
+
+      <div class="p-6 flex-1 flex flex-col">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="material-symbols-outlined text-primary text-base">location_on</span>
+          <span class="text-xs font-semibold text-on-surface-variant" th:text="${action.location}">Lieu</span>
+        </div>
+
+        <h3 class="text-xl font-bold text-on-surface mb-2 leading-tight" th:text="${action.title}">Titre</h3>
+        <p class="text-sm text-on-surface-variant mb-6" th:text="${action.organization.name}">Organisation</p>
+
+        <div class="mt-auto">
+          <div class="flex justify-between text-xs font-bold mb-2 text-on-surface">
+            <span>Progression</span>
+            <span th:text="${action.goalAmount > 0 ? (action.collectedAmount * 100 / action.goalAmount) : 0} + '%'">0%</span>
+          </div>
+          <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-6">
+            <div class="h-full bg-primary-gradient"
+                 th:style="'width: ' + ${action.goalAmount > 0 ? (action.collectedAmount * 100 / action.goalAmount) : 0} + '%'">
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center text-xs text-on-surface-variant border-t border-slate-50 pt-4">
+            <span class="font-bold text-primary" th:text="${action.collectedAmount} + ' / ' + ${action.goalAmount} + ' MAD'">0 / 0 MAD</span>
+            <a th:href="@{/actions/{id}(id=${action.id})}" class="font-bold text-slate-700 hover:text-primary transition-colors">Détails →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
 </body>
 </html>

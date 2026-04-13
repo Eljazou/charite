@@ -2,60 +2,186 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
 <head>
-    <meta charset="UTF-8">
-    <title>Organisations</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Organisations | Charite</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0053db",
+                        "on-surface": "#00345e",
+                        "on-surface-variant": "#306197",
+                        "background": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                        "outline-variant": "#87b5f0",
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .bg-primary-gradient { background: linear-gradient(135deg, #0053db 0%, #0048c1 100%); }
+    </style>
 </head>
-<body>
-<h2>Liste des organisations</h2>
+<body class="bg-background text-on-surface">
 
-<div th:if="${param.created}">
-    <p style="color:green">Organisation créée avec succès.</p>
-</div>
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
 
-<!-- Only visible to ORG_ADMIN -->
-<div sec:authorize="hasRole('ORG_ADMIN')">
-    <a th:href="@{/organizations/create}">+ Nouvelle organisation</a>
-</div>
+<!-- TOPBAR -->
+<header class="fixed top-0 left-64 right-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100">
+    <h2 class="font-bold text-slate-800">Organisations</h2>
+    <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-xs"
+             th:text="${currentOrg != null ? #strings.substring(currentOrg.name, 0, 2) : 'AD'}">AD</div>
+    </div>
+</header>
 
-<table border="1">
-    <tr>
-        <th>Logo</th>
-        <th>Nom</th>
+<!-- MAIN -->
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
 
-        <th>Adresse légale</th>
-        <th>Numéro fiscal</th>
-        <th>Contact</th>
-        <th>Statut</th>
-        <th>Créé par</th>
-        <th>Actions</th>
-    </tr>
-    <tr th:each="org : ${organizations}">
-        <td>
-            <img th:if="${org.logoUrl != null}" th:src="${org.logoUrl}" width="50" height="50"/>
-            <span th:unless="${org.logoUrl != null}">-</span>
-        </td>
-        <td th:text="${org.name}"></td>
+    <!-- SUCCESS / INFO BANNERS -->
+    <div th:if="${param.created}" class="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-emerald-600" style="font-variation-settings:'FILL' 1;">check_circle</span>
+        <span class="font-medium text-sm">Organisation créée avec succès.</span>
+    </div>
 
-        <td th:text="${org.legalAddress}"></td>
-        <td th:text="${org.taxNumber}"></td>
-        <td th:text="${org.mainContact}"></td>
-        <td th:text="${org.status}"></td>
-        <td th:text="${org.createdBy.fullName}"></td>
-        <td>
-            <a th:href="@{/organizations/edit/{id}(id=${org.id})}">Modifier</a>
-            <form method="post" th:action="@{/organizations/delete/{id}(id=${org.id})}" style="display:inline">
-                <button type="submit" onclick="return confirm('Confirmer la demande de suppression ?')">Supprimer</button>
-            </form>
-        </td>
-    </tr>
-</table>
-<div th:if="${param.createRequested}">
-    <p style="color:orange">Demande de création soumise, en attente d'approbation du super admin.</p>
-</div>
+    <div th:if="${param.createRequested}" class="mb-6 flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-amber-500" style="font-variation-settings:'FILL' 1;">schedule</span>
+        <span class="font-medium text-sm">Demande de création soumise, en attente d'approbation du super admin.</span>
+    </div>
 
-<br/>
-<form method="post" th:action="@{/logout}">
-    <button type="submit">Se déconnecter</button>
-</form>
+    <!-- PAGE HEADER -->
+    <section class="flex justify-between items-end mb-10 mt-6">
+        <div>
+            <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1">Mes Organisations</h2>
+            <p class="text-on-surface-variant">Gérez vos organisations et leurs informations.</p>
+        </div>
+        <div sec:authorize="hasRole('ORG_ADMIN')">
+            <a th:href="@{/organizations/create}"
+               class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-200 hover:scale-[1.02] transition-all">
+                <span class="material-symbols-outlined">add_circle</span>
+                Nouvelle organisation
+            </a>
+        </div>
+    </section>
+
+    <!-- EMPTY STATE -->
+    <div th:if="${#lists.isEmpty(organizations)}" class="flex flex-col items-center justify-center py-24 text-center">
+        <div class="w-24 h-24 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-4xl text-on-surface-variant">corporate_fare</span>
+        </div>
+        <h3 class="text-xl font-bold text-on-surface mb-2">Aucune organisation pour l'instant.</h3>
+        <p class="text-on-surface-variant text-sm mb-6">Créez votre première organisation pour commencer.</p>
+        <a th:href="@{/organizations/create}"
+           class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined">add_circle</span>
+            Créer une organisation
+        </a>
+    </div>
+
+    <!-- TABLE -->
+    <div th:unless="${#lists.isEmpty(organizations)}" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Logo</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Nom</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Adresse légale</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Numéro fiscal</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Contact</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Statut</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Créé par</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                <tr th:each="org : ${organizations}" class="hover:bg-slate-50/50 transition-colors">
+
+                    <!-- LOGO -->
+                    <td class="px-6 py-4">
+                        <img th:if="${org.logoUrl != null}"
+                             th:src="${org.logoUrl}"
+                             class="w-12 h-12 rounded-xl object-cover border border-slate-100"/>
+                        <div th:unless="${org.logoUrl != null}"
+                             class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-surface-variant">image</span>
+                        </div>
+                    </td>
+
+                    <!-- NOM -->
+                    <td class="px-6 py-4">
+                        <span class="font-bold text-sm text-on-surface" th:text="${org.name}"></span>
+                    </td>
+
+                    <!-- ADRESSE -->
+                    <td class="px-6 py-4 text-sm text-on-surface-variant" th:text="${org.legalAddress}"></td>
+
+                    <!-- TAX -->
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600" th:text="${org.taxNumber}"></span>
+                    </td>
+
+                    <!-- CONTACT -->
+                    <td class="px-6 py-4 text-sm text-on-surface-variant" th:text="${org.mainContact}"></td>
+
+                    <!-- STATUT -->
+                    <td class="px-6 py-4">
+                            <span th:text="${org.status}"
+                                  th:class="${org.status.name() == 'ACTIVE'} ? 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700' :
+                                             (${org.status.name() == 'PENDING'} ? 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700' :
+                                             'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700')">
+                            </span>
+                    </td>
+
+                    <!-- CRÉÉ PAR -->
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-primary-gradient flex items-center justify-center text-white text-xs font-bold"
+                                 th:text="${#strings.substring(org.createdBy.fullName, 0, 1)}">A</div>
+                            <span class="text-sm text-on-surface" th:text="${org.createdBy.fullName}"></span>
+                        </div>
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <a th:href="@{/organizations/edit/{id}(id=${org.id})}"
+                               class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-primary bg-surface-container-low hover:bg-blue-100 transition-colors">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                                Modifier
+                            </a>
+                            <form method="post" th:action="@{/organizations/delete/{id}(id=${org.id})}" class="inline">
+                                <button type="submit"
+                                        onclick="return confirm('Confirmer la demande de suppression ?')"
+                                        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors border-none cursor-pointer">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                    Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
 </body>
 </html>

@@ -66,4 +66,6 @@ public class PendingChange {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "charity_action_id", nullable = true)
     private CharityAction charityAction;
+
+    
 }

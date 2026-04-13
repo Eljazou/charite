@@ -1,28 +1,121 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html class="light" lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PhilanthroLink - Connexion</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#0053db",
+                        "surface-bright": "#f8f9ff",
+                        "on-surface": "#00345e",
+                        "on-surface-variant": "#306197",
+                        "background": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container-lowest": "#ffffff",
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-primary-gradient {
+            background: linear-gradient(135deg, #0053db 0%, #0048c1 100%);
+        }
+        .ambient-shadow {
+            box-shadow: 0 12px 40px rgba(0, 52, 94, 0.08);
+        }
+    </style>
 </head>
-<body>
-<h2>Login</h2>
+<body class="bg-background text-on-surface min-h-screen flex items-center justify-center p-6">
 
-<div th:if="${param.registered}">
-    <p style="color:green">Compte créé, vous pouvez vous connecter.</p>
-</div>
-<div th:if="${param.logout}">
-    <p style="color:gray">Vous êtes déconnecté.</p>
-</div>
-<div th:if="${param.error}">
-    <p style="color:red">Email ou mot de passe incorrect.</p>
+<div class="w-full max-w-md">
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-gradient text-white mb-4 shadow-xl shadow-primary/20">
+            <span class="material-symbols-outlined text-3xl">corporate_fare</span>
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 headline">CharityHero</h1>
+        <p class="text-on-surface-variant font-medium mt-1">Connectez-vous à votre espace Admin</p>
+    </div>
+
+    <div class="bg-white rounded-3xl p-8 ambient-shadow border border-slate-50">
+
+        <div th:if="${param.registered}" class="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-3">
+            <span class="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
+            <p class="text-emerald-700 text-sm font-medium">Compte créé, vous pouvez vous connecter.</p>
+        </div>
+
+        <div th:if="${param.logout}" class="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
+            <span class="material-symbols-outlined text-slate-500 text-sm">info</span>
+            <p class="text-slate-600 text-sm font-medium">Vous êtes déconnecté.</p>
+        </div>
+
+        <div th:if="${param.error}" class="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3">
+            <span class="material-symbols-outlined text-red-600 text-sm">error</span>
+            <p class="text-red-700 text-sm font-medium">Email ou mot de passe incorrect.</p>
+        </div>
+
+        <form method="post" th:action="@{/login}" class="space-y-5">
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 ml-1">Email</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">mail</span>
+                    <input type="email" name="username" required
+                           class="w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-sm outline-none transition-all"
+                           placeholder="admin@charity.ma"/>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between mb-2 ml-1">
+                    <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Mot de passe</label>
+                </div>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">lock</span>
+                    <input type="password" name="password" required
+                           class="w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-sm outline-none transition-all"
+                           placeholder="••••••••"/>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit"
+                        class="w-full py-4 bg-primary-gradient text-white rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all">
+                    Se connecter
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+            <p class="text-sm text-on-surface-variant">
+                Nouveau ici ?
+                <a th:href="@{/register}" class="text-primary font-bold hover:underline underline-offset-4 ml-1">Créer un compte</a>
+            </p>
+        </div>
+    </div>
+
+    <p class="text-center mt-8 text-xs text-slate-400 font-medium">
+        &copy; 2026 PhilanthroLink. Tous droits réservés.
+    </p>
 </div>
 
-<form method="post" th:action="@{/login}">
-    <label>Email: <input type="email" name="username"/></label><br/>
-    <label>Mot de passe: <input type="password" name="password"/></label><br/>
-    <button type="submit">Se connecter</button>
-</form>
-
-<a th:href="@{/register}">Créer un compte</a>
 </body>
 </html>
