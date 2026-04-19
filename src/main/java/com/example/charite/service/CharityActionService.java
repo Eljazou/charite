@@ -21,6 +21,11 @@ public class CharityActionService {
     private final UserRepository userRepository;
     private final PendingChangeRepository pendingChangeRepository;
     private final DonationRepository donationRepository;
+    private final CharityActionMediaRepository charityActionMediaRepository;
+
+    public void deleteMedia(Long mediaId) {
+        charityActionMediaRepository.deleteById(mediaId);
+    }
 
     public void requestCreate(CharityActionCreateRequest req,
                               List<MultipartFile> images,
@@ -142,6 +147,45 @@ public class CharityActionService {
         CharityAction action = charityActionRepository.findById(actionId)
                 .orElseThrow(() -> new IllegalArgumentException("Action introuvable"));
 
+        // save new images directly to the action
+        if (images != null) {
+            for (MultipartFile file : images) {
+                if (!file.isEmpty()) {
+                    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                    Path uploadPath = Path.of("uploads/actions/images");
+                    Files.createDirectories(uploadPath);
+                    Files.copy(file.getInputStream(), uploadPath.resolve(fileName));
+                    CharityActionMedia media = CharityActionMedia.builder()
+                            .mediaType(MediaType.IMAGE)
+                            .filePath("/actions/images/" + fileName)
+                            .charityAction(action)
+                            .build();
+                    action.getMediaList().add(media);
+                }
+            }
+        }
+
+        // save new videos directly to the action
+        if (videos != null) {
+            for (MultipartFile file : videos) {
+                if (!file.isEmpty()) {
+                    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                    Path uploadPath = Path.of("uploads/actions/videos");
+                    Files.createDirectories(uploadPath);
+                    Files.copy(file.getInputStream(), uploadPath.resolve(fileName));
+                    CharityActionMedia media = CharityActionMedia.builder()
+                            .mediaType(MediaType.VIDEO)
+                            .filePath("/actions/videos/" + fileName)
+                            .charityAction(action)
+                            .build();
+                    action.getMediaList().add(media);
+                }
+            }
+        }
+
+        charityActionRepository.save(action);
+
+        // create pending change for other fields
         PendingChange change = PendingChange.builder()
                 .requestedBy(caller)
                 .type(PendingChangeType.UPDATE_ACTION)
@@ -152,6 +196,7 @@ public class CharityActionService {
                 .actionStartDate(req.getStartDate())
                 .actionEndDate(req.getEndDate())
                 .actionGoalAmount(req.getGoalAmount())
+                .actionStatus(req.getStatus())
                 .build();
 
         pendingChangeRepository.save(change);

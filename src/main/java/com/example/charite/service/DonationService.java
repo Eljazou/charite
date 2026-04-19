@@ -53,15 +53,16 @@ public class DonationService {
         }
     }
 
-    // confirm donation after successful payment
     public void confirmDonation(Long actionId, String sessionId) {
-        // find pending donation for this action and mark as completed
+        // Stripe confirmation — find donation by session or just the latest PENDING
         CharityAction action = charityActionRepository.findById(actionId)
                 .orElseThrow(() -> new IllegalArgumentException("Action introuvable"));
 
+        // get the LAST pending donation for this action (most recent)
         donationRepository.findByCharityAction(action).stream()
-                .filter(d -> d.getStatus() == DonationStatus.PENDING)
-                .findFirst()
+                .filter(d -> d.getStatus() == DonationStatus.PENDING
+                        && d.getPaymentMethod() == PaymentMethod.CREDIT_CARD)
+                .reduce((first, second) -> second) // take the last one
                 .ifPresent(d -> {
                     d.setStatus(DonationStatus.COMPLETED);
                     donationRepository.save(d);
@@ -72,10 +73,13 @@ public class DonationService {
 
     // confirm bank transfer manually
     public void confirmBankDonation(Long donationId) {
+        System.out.println("=== CONFIRMING DONATION ID: " + donationId);
         Donation donation = donationRepository.findById(donationId)
                 .orElseThrow(() -> new IllegalArgumentException("Don introuvable"));
+        System.out.println("=== DONATION STATUS BEFORE: " + donation.getStatus());
         donation.setStatus(DonationStatus.COMPLETED);
         donationRepository.save(donation);
+        System.out.println("=== DONATION STATUS AFTER: " + donation.getStatus());
 
         CharityAction action = donation.getCharityAction();
         action.setCollectedAmount(action.getCollectedAmount().add(donation.getAmount()));
@@ -85,5 +89,13 @@ public class DonationService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return donationRepository.findByUser(user);
+    }
+    public Donation getLastCompletedDonation(Long actionId) {
+        CharityAction action = charityActionRepository.findById(actionId)
+                .orElseThrow(() -> new IllegalArgumentException("Action introuvable"));
+        return donationRepository.findByCharityAction(action).stream()
+                .filter(d -> d.getStatus() == DonationStatus.COMPLETED)
+                .reduce((first, second) -> second)
+                .orElse(null);
     }
 }

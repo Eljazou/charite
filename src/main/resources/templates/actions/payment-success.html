@@ -1,19 +1,159 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html class="light" lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Don confirmé</title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>PhilanthroLink - Don Confirmé</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          "colors": {
+            "primary": "#0053db",
+            "success": "#00c853",
+            "background": "#f8f9ff",
+          },
+          "fontFamily": { "headline": ["Manrope"], "body": ["Inter"] }
+        },
+      },
+    }
+  </script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin-top: 80px; }
-    .success { color: #4CAF50; font-size: 60px; }
-    .btn { background: #4CAF50; color: white; padding: 12px 24px;
-      border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+
+    .bg-success-gradient {
+      background: linear-gradient(135deg, #00c853 0%, #00a441 100%);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* --- STYLES D'IMPRESSION --- */
+    #printable-receipt { display: none; }
+
+    @media print {
+      /* On cache tout le reste du site */
+      body * { visibility: hidden; shadow: none !important; }
+
+      /* On affiche et on force le style du reçu */
+      #printable-receipt, #printable-receipt * {
+        visibility: visible;
+        display: block !important;
+      }
+
+      #printable-receipt {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 50px;
+        color: black;
+        background: white;
+      }
+
+      .receipt-header { border-bottom: 3px solid #0053db; padding-bottom: 20px; margin-bottom: 40px; text-align: center; }
+      .receipt-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+      .receipt-total {
+        margin-top: 40px;
+        padding: 20px;
+        background: #f0f4ff !important;
+        -webkit-print-color-adjust: exact;
+        display: flex;
+        justify-content: space-between;
+        font-size: 22px;
+        font-weight: bold;
+        border-radius: 12px;
+      }
+      .receipt-footer { margin-top: 60px; text-align: center; font-size: 12px; color: #666; }
+
+      /* Cacher le bouton d'impression et les cercles de fond */
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
-<body>
-<div class="success">✓</div>
-<h2>Don confirmé avec succès !</h2>
-<p>Merci pour votre contribution à <strong th:text="${action.title}"></strong></p>
-<a th:href="@{/actions}"><button class="btn">Retour aux actions</button></a>
+<body class="bg-background min-h-screen flex items-center justify-center p-6">
+
+<div class="max-w-md w-full text-center relative z-10 no-print">
+  <div class="mb-8 relative inline-block">
+    <div class="w-24 h-24 bg-success-gradient rounded-full flex items-center justify-center shadow-2xl shadow-success/30 relative z-20">
+      <span class="material-symbols-outlined text-white text-5xl" style="font-variation-settings: 'wght' 700">check</span>
+    </div>
+    <div class="absolute inset-0 bg-success/20 rounded-full animate-ping"></div>
+  </div>
+
+  <div class="glass-card rounded-[2.5rem] p-10 shadow-xl shadow-slate-200/50">
+    <h2 class="text-3xl font-extrabold text-slate-900 mb-4 leading-tight">Don confirmé !</h2>
+    <p class="text-slate-500 text-sm mb-8 leading-relaxed">
+      Merci pour votre contribution à l'action <br/>
+      <strong class="text-slate-800" th:text="${action.title}">[Nom de l'Action]</strong>.
+    </p>
+
+    <div class="space-y-3">
+      <button onclick="window.print()"
+              class="w-full bg-primary text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+        <span class="material-symbols-outlined text-lg">print</span>
+        Télécharger mon reçu
+      </button>
+      <a th:href="@{/actions}"
+         class="w-full bg-white text-slate-600 py-4 rounded-2xl font-bold text-sm flex items-center justify-center border border-slate-100 hover:bg-slate-50 transition-all">
+        Retour aux actions
+      </a>
+    </div>
+  </div>
+</div>
+
+<div id="printable-receipt">
+  <div class="receipt-header">
+    <h1 style="font-size: 28px; font-weight: 800; color: #0053db; margin-bottom: 5px;">PHILANTHROLINK</h1>
+    <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #666;">Reçu Officiel de Don</p>
+  </div>
+
+  <div style="margin-bottom: 40px;">
+    <div class="receipt-row">
+      <span>Numéro de Transaction</span>
+      <strong th:text="${transactionId}">TX-992837465</strong>
+    </div>
+    <div class="receipt-row">
+      <span>Date de Paiement</span>
+      <strong th:text="${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy HH:mm')}">19 Avril 2026</strong>
+    </div>
+    <div class="receipt-row">
+      <span>Donateur</span>
+      <strong th:text="${currentUser != null ? currentUser.fullName : #authentication.name}">Jean Dupont</strong>
+    </div>
+  </div>
+
+  <div style="background: #f8f9ff; padding: 25px; border-radius: 15px; margin-bottom: 20px;">
+    <h3 style="font-size: 14px; font-weight: bold; color: #0053db; margin-bottom: 15px; text-transform: uppercase;">Détails de l'Affectation</h3>
+    <div class="receipt-row">
+      <span>Action Soutenue</span>
+      <strong th:text="${action.title}">Soutien Scolaire</strong>
+    </div>
+    <div class="receipt-row">
+      <span>Organisation Bénéficiaire</span>
+      <strong th:text="${action.organization.name}">ONG Maroc Coeur</strong>
+    </div>
+  </div>
+
+  <div class="receipt-total">
+    <span>Montant du Don</span>
+    <span th:text="${amount + ' MAD'}">500.00 MAD</span>
+  </div>
+
+  <div class="receipt-footer">
+    <p>PhilanthroLink Morocco • Plateforme de Solidarité Digitale</p>
+    <p style="margin-top: 10px; font-style: italic;">Ce document est une preuve de transaction électronique générée automatiquement.</p>
+  </div>
+</div>
+
 </body>
 </html>

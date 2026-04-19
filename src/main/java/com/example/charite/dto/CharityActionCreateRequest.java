@@ -1,5 +1,6 @@
 package com.example.charite.dto;
 
+import com.example.charite.enums.CharityActionStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,4 +15,5 @@ public class CharityActionCreateRequest {
     private LocalDate startDate;
     private LocalDate endDate;
     private BigDecimal goalAmount;
+    private CharityActionStatus status;
 }

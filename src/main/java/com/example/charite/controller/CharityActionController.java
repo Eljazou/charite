@@ -3,6 +3,8 @@ package com.example.charite.controller;
 import com.example.charite.dto.CharityActionCreateRequest;
 import com.example.charite.dto.DonationRequest;
 import com.example.charite.entity.CharityAction;
+import com.example.charite.entity.Donation;
+import com.example.charite.enums.CharityActionStatus;
 import com.example.charite.enums.PaymentMethod;
 import com.example.charite.service.CharityActionService;
 import com.example.charite.service.DonationService;
@@ -80,16 +82,21 @@ public class CharityActionController {
         return "actions/donate";
     }
 
-    // Stripe success callback
     @GetMapping("/{id}/donate/success")
     public String stripeSuccess(@PathVariable Long id,
                                 @RequestParam("session_id") String sessionId,
                                 Model model) {
         donationService.confirmDonation(id, sessionId);
-        model.addAttribute("action", charityActionService.findById(id));
+        CharityAction action = charityActionService.findById(id);
+
+        // get the last completed donation for this action
+        Donation donation = donationService.getLastCompletedDonation(id);
+
+        model.addAttribute("action", action);
+        model.addAttribute("transactionId", "TX-" + (donation != null ? donation.getId() : sessionId.substring(0, 8)));
+        model.addAttribute("amount", donation != null ? donation.getAmount() : "N/A");
         return "actions/payment-success";
     }
-
     // Stripe cancel callback
     @GetMapping("/{id}/donate/cancel")
     public String stripeCancel(@PathVariable Long id, Model model) {
@@ -111,14 +118,21 @@ public class CharityActionController {
     @PostMapping("/{id}/donate/bank/confirm")
     public String confirmBank(@PathVariable Long id,
                               @RequestParam("donationId") Long donationId) {
+        System.out.println("=== CONFIRM BANK CALLED ===");
+        System.out.println("=== Action ID: " + id);
+        System.out.println("=== Donation ID: " + donationId);
         donationService.confirmBankDonation(donationId);
         return "redirect:/actions/" + id + "/donate/success-bank";
     }
-
     // Bank transfer success
     @GetMapping("/{id}/donate/success-bank")
     public String bankSuccess(@PathVariable Long id, Model model) {
-        model.addAttribute("action", charityActionService.findById(id));
+        CharityAction action = charityActionService.findById(id);
+        Donation donation = donationService.getLastCompletedDonation(id);
+
+        model.addAttribute("action", action);
+        model.addAttribute("transactionId", "TX-" + (donation != null ? donation.getId() : System.currentTimeMillis()));
+        model.addAttribute("amount", donation != null ? donation.getAmount() : "N/A");
         return "actions/payment-success";
     }
 
@@ -154,11 +168,13 @@ public class CharityActionController {
         req.setStartDate(action.getStartDate());
         req.setEndDate(action.getEndDate());
         req.setGoalAmount(action.getGoalAmount());
+        req.setStatus(action.getStatus()); // ← ajoute
         model.addAttribute("req", req);
         model.addAttribute("actionId", id);
+        model.addAttribute("currentMedias", action.getMediaList());
+        model.addAttribute("statuses", CharityActionStatus.values()); // ← ajoute
         return "actions/edit";
     }
-
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id,
                        @ModelAttribute("req") CharityActionCreateRequest req,
@@ -186,5 +202,11 @@ public class CharityActionController {
         model.addAttribute("donations", donationService.findByUser(principal.getName()));
         model.addAttribute("currentUrl", "/actions/my-donations");
         return "actions/my-donations";
+    }
+    @PostMapping("/media/delete/{mediaId}")
+    public String deleteMedia(@PathVariable Long mediaId,
+                              @RequestParam("actionId") Long actionId) {
+        charityActionService.deleteMedia(mediaId);
+        return "redirect:/actions/edit/" + actionId;
     }
 }

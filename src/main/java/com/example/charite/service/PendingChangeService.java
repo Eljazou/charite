@@ -146,6 +146,9 @@ public class PendingChangeService {
             action.setStartDate(change.getActionStartDate());
             action.setEndDate(change.getActionEndDate());
             action.setGoalAmount(change.getActionGoalAmount());
+            if (change.getActionStatus() != null) {  // ← ajoute ces deux lignes
+                action.setStatus(change.getActionStatus());
+            }
             charityActionRepository.save(action);
 
         } else if (change.getType() == PendingChangeType.DELETE_ACTION) {

@@ -1,5 +1,6 @@
 package com.example.charite.entity;
 
+import com.example.charite.enums.CharityActionStatus;
 import com.example.charite.enums.PendingChangeStatus;
 import com.example.charite.enums.PendingChangeType;
 import jakarta.persistence.*;
@@ -66,6 +67,8 @@ public class PendingChange {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "charity_action_id", nullable = true)
     private CharityAction charityAction;
+    @Enumerated(EnumType.STRING)
+    private CharityActionStatus actionStatus;
 
     
 }
