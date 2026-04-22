@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+# Uploaded files (images, videos, logos)
+uploads/
+
+# Application secrets
+src/main/resources/application.properties
