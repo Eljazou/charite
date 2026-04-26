@@ -54,7 +54,8 @@
                     </div>
                 </div>
 
-                <a th:href="${#authorization.expression('hasRole(''SUPER_ADMIN'')')} ? @{/superadmin/profile} : @{/orgadmin/profile}"
+                <a th:href="${#authorization.expression('hasRole(''SUPER_ADMIN'')')} ? @{/superadmin/profile} :
+            (${#authorization.expression('hasRole(''ORG_ADMIN'')')} ? @{/orgadmin/profile} : @{/user/profile})"
                    class="w-full bg-primary-gradient text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
                     <span class="material-symbols-outlined text-sm">manage_accounts</span>
                     <span th:text="#{dropdown.manage}"></span>

@@ -18,10 +18,6 @@
             <h2 class="text-3xl font-extrabold tracking-tight text-on-surface" th:text="#{pending.title}"></h2>
             <p class="text-on-surface-variant mt-1" th:text="#{pending.subtitle}"></p>
         </div>
-        <a th:href="@{/organizations}" class="flex items-center gap-2 text-sm font-bold text-primary hover:bg-blue-50 px-4 py-2 rounded-xl transition-all">
-            <span class="material-symbols-outlined text-lg">arrow_back</span>
-            <span th:text="#{pending.back}"></span>
-        </a>
     </section>
 
     <div th:if="${#lists.isEmpty(changes)}" class="bg-white rounded-3xl p-20 text-center border border-slate-50 shadow-sm">
@@ -54,7 +50,7 @@
                                 <span class="block font-bold text-slate-800 text-sm"
                                       th:if="${change.organization != null}" th:text="${change.organization.name}"></span>
                             <span class="block font-bold text-blue-600 text-sm"
-                                  th:if="${change.organization == null}">Nouvelle Entité</span>
+                                  th:if="${change.organization == null}" th:text="#{pending.new.entity}"></span>
                             <span class="block text-[10px] text-slate-400 font-medium uppercase"
                                   th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE_ACTION}"
                                   th:text="'Org: ' + ${change.charityAction != null ? change.charityAction.organization.name : '-'}"></span>
@@ -79,18 +75,18 @@
                     <div class="text-xs space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <th:block th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE}">
                             <p><b class="text-slate-500" th:text="#{pending.col.org}+':'"></b> <span th:text="${change.newName}"></span></p>
-                            <p><b class="text-slate-500">Adresse:</b> <span th:text="${change.newLegalAddress}"></span></p>
-                            <p><b class="text-slate-500">Tax:</b> <span th:text="${change.newTaxNumber}"></span></p>
+                            <p><b class="text-slate-500" th:text="#{pending.field.address} + ':'"></b> <span th:text="${change.newLegalAddress}"></span></p>
+                            <p><b class="text-slate-500" th:text="#{pending.field.tax} + ':'"></b> <span th:text="${change.newTaxNumber}"></span></p>
                         </th:block>
 
                         <th:block th:if="${change.type.name() == 'UPDATE'}">
-                            <p><b class="text-slate-500">Nom:</b> <span th:text="${change.newName}"></span></p>
-                            <p><b class="text-slate-500">Contact:</b> <span th:text="${change.newMainContact}"></span></p>
+                            <p><b class="text-slate-500" th:text="#{pending.field.name} + ':'"></b> <span th:text="${change.newName}"></span></p>
+                            <p><b class="text-slate-500" th:text="#{pending.field.contact} + ':'"></b> <span th:text="${change.newMainContact}"></span></p>
                         </th:block>
 
                         <th:block th:if="${change.type == T(com.example.charite.enums.PendingChangeType).CREATE_ACTION}">
                             <p class="text-blue-700 font-bold"><span th:text="${change.actionTitle}"></span></p>
-                            <p><b class="text-slate-500">Objectif:</b> <span th:text="${change.charityAction != null ? change.charityAction.goalAmount : '-'}"></span> MAD</p>
+                            <p><b class="text-slate-500" th:text="#{pending.field.goal} + ':'"></b> <span th:text="${change.charityAction != null ? change.charityAction.goalAmount : '-'}"></span> MAD</p>
                         </th:block>
 
                         <p th:if="${change.type.name() == 'DELETE'}"
@@ -101,13 +97,13 @@
 
                 <td class="px-6 py-5">
                     <div class="flex items-center justify-center gap-2">
-                        <form method="post" th:action="@{/templates/superadmin/approve/{id}(id=${change.id})}">
+                        <form method="post" th:action="@{/superadmin/approve/{id}(id=${change.id})}">
                             <button type="submit"
                                     class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-lg">check</span>
                             </button>
                         </form>
-                        <form method="post" th:action="@{/templates/superadmin/reject/{id}(id=${change.id})}">
+                        <form method="post" th:action="@{/superadmin/reject/{id}(id=${change.id})}">
                             <button type="submit"
                                     class="w-9 h-9 rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-lg">close</span>

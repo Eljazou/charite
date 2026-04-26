@@ -4,65 +4,14 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title th:text="${action.title} + ' | Charite'">Détail Action</title>
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#0053db",
-                        "on-surface": "#00345e",
-                        "on-surface-variant": "#306197",
-                        "surface-container-low": "#eff4ff",
-                        "outline-variant": "#87b5f0",
-                    },
-                    fontFamily: {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"]
-                    }
-                },
-            },
-        }
-    </script>
+    <title th:text="${action.title} + ' | CharityAct'">Détail Action</title>
+    <th:block th:replace="~{layout/base :: common}"></th:block>
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
-        .bg-primary-gradient { background: linear-gradient(135deg, #0053db 0%, #0048c1 100%); }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-
-        .media-thumb {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-
-        /* Lightbox */
-        .lightbox {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .lightbox.open { display: flex; }
-        .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; }
-        .lightbox-close {
-            position: absolute;
-            top: 20px; right: 24px;
-            color: white;
-            font-size: 32px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .media-thumb { width:100%; height:200px; object-fit:cover; border-radius:12px; border:1px solid #e2e8f0; }
+        .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center; }
+        .lightbox.open { display:flex; }
+        .lightbox img { max-width:90vw; max-height:90vh; border-radius:12px; }
+        .lightbox-close { position:absolute; top:20px; right:24px; color:white; font-size:32px; cursor:pointer; font-weight:bold; }
     </style>
 </head>
 <body class="bg-[#f8f9ff] text-on-surface">
