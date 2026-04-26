@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{actions.title}">Mes Actions</title>
+    <th:block th:replace="~{layout/base :: common}"></th:block>
+</head>
+<body class="bg-[#f8f9ff] text-on-surface">
+
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
+<th:block th:replace="~{layout/header :: topbar('orgadmin.actions.header')}"></th:block>
+
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
+
+    <!-- ALERTS -->
+    <div th:if="${param.created}" data-alert class="mt-6 mb-4 flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-amber-500">schedule</span>
+        <span class="font-medium text-sm" th:text="#{actions.alert.created}"></span>
+    </div>
+    <div th:if="${param.updated}" data-alert class="mt-6 mb-4 flex items-center gap-3 bg-blue-50 border border-blue-200 text-blue-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-blue-600">info</span>
+        <span class="font-medium text-sm" th:text="#{actions.alert.updated}"></span>
+    </div>
+    <div th:if="${param.deleted}" data-alert class="mt-6 mb-4 flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-red-600">delete</span>
+        <span class="font-medium text-sm" th:text="#{actions.alert.deleted}"></span>
+    </div>
+
+    <!-- HEADER -->
+    <section class="flex justify-between items-end mb-10 mt-6">
+        <div>
+            <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1" th:text="#{actions.title}"></h2>
+            <p class="text-on-surface-variant" th:text="#{actions.subtitle}"></p>
+        </div>
+        <a th:href="@{/orgadmin/actions/create}"
+           class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:scale-[1.02] transition-all">
+            <span class="material-symbols-outlined">add_circle</span>
+            <span th:text="#{actions.new}"></span>
+        </a>
+    </section>
+
+    <!-- EMPTY STATE -->
+    <div th:if="${#lists.isEmpty(actions)}" class="flex flex-col items-center justify-center py-24 text-center">
+        <div class="w-24 h-24 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-4xl text-on-surface-variant">rocket_launch</span>
+        </div>
+        <h3 class="text-xl font-bold text-on-surface mb-2" th:text="#{actions.empty}"></h3>
+        <p class="text-on-surface-variant text-sm mb-6" th:text="#{actions.empty.sub}"></p>
+        <a th:href="@{/orgadmin/actions/create}"
+           class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined">add_circle</span>
+            <span th:text="#{actions.create}"></span>
+        </a>
+    </div>
+
+    <!-- TABLE -->
+    <div th:unless="${#lists.isEmpty(actions)}" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{actions.col.preview}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{actions.col.title}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{actions.col.location}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{actions.col.dates}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{actions.col.goal}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{actions.col.progress}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{actions.col.status}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{actions.col.actions}"></th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                <tr th:each="action : ${actions}" class="hover:bg-slate-50/50 transition-colors">
+
+                    <td class="px-6 py-4">
+                        <div class="w-14 h-14 rounded-xl overflow-hidden bg-surface-container-low flex items-center justify-center border border-slate-100">
+                            <div th:each="media, iterStat : ${action.mediaList}" th:if="${iterStat.index == 0}">
+                                <img th:if="${media.mediaType == T(com.example.charite.enums.MediaType).IMAGE}"
+                                     th:src="${media.filePath}" class="w-full h-full object-cover"/>
+                            </div>
+                            <span th:if="${#lists.isEmpty(action.mediaList)}"
+                                  class="material-symbols-outlined text-on-surface-variant">image</span>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <span class="font-bold text-sm text-on-surface" th:text="${action.title}"></span>
+                        <p class="text-xs text-on-surface-variant mt-0.5" th:text="${action.organization.name}"></p>
+                    </td>
+
+                    <td class="px-6 py-4 text-sm text-on-surface-variant" th:text="${action.location}"></td>
+
+                    <td class="px-6 py-4">
+                        <div class="text-xs text-on-surface-variant">
+                            <span th:text="${action.startDate}"></span>
+                            <span class="mx-1">→</span>
+                            <span th:text="${action.endDate}"></span>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <span class="text-sm font-bold text-primary" th:text="${action.goalAmount} + ' MAD'"></span>
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <div class="w-28">
+                            <div class="flex justify-between text-xs font-bold mb-1">
+                                <span class="text-on-surface-variant" th:text="${action.collectedAmount} + ' MAD'"></span>
+                                <span class="text-primary"
+                                      th:text="${action.goalAmount != null and action.goalAmount.signum() > 0 ? action.collectedAmount.multiply(100).divide(action.goalAmount, 0, T(java.math.RoundingMode).HALF_UP) : 0} + '%'"></span>
+                            </div>
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-primary-gradient rounded-full"
+                                     th:style="'width:' + ${action.goalAmount != null and action.goalAmount.signum() > 0 ? action.collectedAmount.multiply(100).divide(action.goalAmount, 0, T(java.math.RoundingMode).HALF_UP) : 0} + '%'">
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <span th:text="${action.status}"
+                              th:class="${action.status.name() == 'ACTIVE'} ? 'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700' :
+                                         (${action.status.name() == 'PENDING_APPROVAL'} ? 'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700' :
+                                         (${action.status.name() == 'REJECTED'} ? 'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700' :
+                                         'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600'))">
+                        </span>
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <a th:href="@{/actions/{id}(id=${action.id})}"
+                               class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 transition-colors">
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                                <span th:text="#{actions.btn.view}"></span>
+                            </a>
+                            <a th:href="@{/orgadmin/actions/edit/{id}(id=${action.id})}"
+                               class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-primary bg-surface-container-low hover:bg-blue-100 transition-colors">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                                <span th:text="#{actions.btn.edit}"></span>
+                            </a>
+                            <form method="post" th:action="@{/orgadmin/actions/delete/{id}(id=${action.id})}" class="inline">
+                                <button type="submit"
+                                        th:onclick="'return confirm(\'' + #{actions.confirm.delete} + '\')'"
+                                        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors border-none cursor-pointer">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                    <span th:text="#{actions.btn.delete}"></span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('[data-alert]');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }, 3000);
+        });
+    });
+</script>
+</body>
+</html>

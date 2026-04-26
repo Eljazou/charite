@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:fragment="common">
+        <meta charset="utf-8"/>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: { extend: { colors: {
+                            "primary": "#0053db",
+                            "on-surface": "#00345e",
+                            "on-surface-variant": "#306197",
+                            "surface-container-low": "#eff4ff"
+                        }, fontFamily: { "headline": ["Manrope"], "body": ["Inter"] } } }
+            }
+        </script>
+        <style>
+            body { font-family: 'Inter', sans-serif; }
+            h1,h2,h3 { font-family: 'Manrope', sans-serif; }
+            .bg-primary-gradient { background: linear-gradient(135deg, #0053db 0%, #0048c1 100%); }
+            .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+            .form-input { width:100%; padding:10px 14px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:14px; color:#00345e; background:#fff; outline:none; transition:border-color 0.2s; }
+            .form-input:focus { border-color:#0053db; box-shadow:0 0 0 3px rgba(0,83,219,0.1); }
+
+            html.dark body { background: #0f172a !important; color: #e2e8f0 !important; }
+            html.dark .bg-white { background: #1e293b !important; }
+            html.dark .border-slate-100 { border-color: #334155 !important; }
+            html.dark aside { background: #1e293b !important; border-color: #334155 !important; }
+            html.dark header { background: rgba(30,41,59,0.8) !important; }
+            html.dark .text-slate-800, html.dark .text-on-surface { color: #e2e8f0 !important; }
+            html.dark .text-slate-500 { color: #94a3b8 !important; }
+            html.dark .text-on-surface-variant { color: #7dd3fc !important; }
+            html.dark .bg-\[#f8f9ff\] { background: #0f172a !important; }
+            html.dark .form-input { background: #1e293b !important; border-color: #334155 !important; color: #e2e8f0 !important; }
+            html.dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important; }
+
+
+            html.dark thead, html.dark .bg-slate-50, html.dark .bg-slate-50\/50 { background: #1e3a5f !important; }
+            html.dark th { color: #94a3b8 !important; }
+            html.dark tbody tr { background: #1e293b !important; }
+            html.dark tbody tr:hover { background: #243448 !important; }
+            html.dark .divide-slate-50 > tr { border-color: #334155 !important; }
+            html.dark .text-slate-700 { color: #cbd5e1 !important; }
+            html.dark .text-slate-400 { color: #64748b !important; }
+            html.dark .bg-surface-container-low { background: #1e3a5f !important; }
+            html.dark .bg-surface-container-low * { color: #ffffff !important; }
+            html.dark .text-primary { color: #60a5fa !important; }
+            html.dark .bg-red-50 { background: #3b1a1a !important; }
+            html.dark .text-red-600 { color: #f87171 !important; }
+            html.dark .bg-purple-50 { background: #3b1f5e !important; }
+            html.dark .text-purple-700 { color: #c084fc !important; }
+            html.dark .bg-blue-50 { background: #1e3a5f !important; }
+            html.dark .text-blue-700 { color: #60a5fa !important; }
+            html.dark .text-blue-600 { color: #60a5fa !important; }
+            html.dark .bg-slate-100 { background: #334155 !important; }
+            html.dark .text-slate-600 { color: #94a3b8 !important; }
+            html.dark .bg-amber-50 { background: #3b2a0a !important; }
+            html.dark .text-amber-600 { color: #fbbf24 !important; }
+            html.dark .bg-emerald-50 { background: #0a3b2a !important; }
+            html.dark .text-emerald-600 { color: #34d399 !important; }
+            html.dark .text-emerald-800 { color: #34d399 !important; }
+            html.dark .text-red-800 { color: #f87171 !important; }
+            html.dark .text-slate-900 { color: #e2e8f0 !important; }
+            html.dark #dropdownMenu { background: #1e293b !important; border-color: #334155 !important; }
+        </style>
+
+        <!-- Script dark mode -->
+        <script th:inline="javascript">
+            var theme = [[${userTheme}]];
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
+    </th:block>
+</head>
+<body></body>
+</html>

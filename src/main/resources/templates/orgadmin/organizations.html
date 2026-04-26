@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{org.title}">Organisations</title>
+    <th:block th:replace="~{layout/base :: common}"></th:block>
+</head>
+<body class="bg-[#f8f9ff] text-on-surface">
+
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
+<th:block th:replace="~{layout/header :: topbar('orgadmin.organizations.header')}"></th:block>
+
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
+
+    <div th:if="${param.created}" data-alert class="mt-6 mb-4 flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-amber-500">schedule</span>
+        <span class="font-medium text-sm" th:text="#{org.alert.created}"></span>
+    </div>
+    <div th:if="${param.updated}" data-alert class="mt-6 mb-4 flex items-center gap-3 bg-blue-50 border border-blue-200 text-blue-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-blue-600">info</span>
+        <span class="font-medium text-sm" th:text="#{org.alert.updated}"></span>
+    </div>
+    <div th:if="${param.deleted}" data-alert class="mt-6 mb-4 flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-red-600">delete</span>
+        <span class="font-medium text-sm" th:text="#{org.alert.deleted}"></span>
+    </div>
+
+    <section class="flex justify-between items-end mb-10 mt-6">
+        <div>
+            <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1" th:text="#{org.title}"></h2>
+            <p class="text-on-surface-variant" th:text="#{org.subtitle}"></p>
+        </div>
+        <a th:href="@{/orgadmin/organizations/create}"
+           class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:scale-[1.02] transition-all">
+            <span class="material-symbols-outlined">add_circle</span>
+            <span th:text="#{org.new}"></span>
+        </a>
+    </section>
+
+    <div th:if="${#lists.isEmpty(organizations)}" class="flex flex-col items-center justify-center py-24 text-center">
+        <div class="w-24 h-24 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-4xl text-on-surface-variant">corporate_fare</span>
+        </div>
+        <h3 class="text-xl font-bold text-on-surface mb-2" th:text="#{org.empty}"></h3>
+        <p class="text-on-surface-variant text-sm mb-6" th:text="#{org.empty.sub}"></p>
+        <a th:href="@{/orgadmin/organizations/create}"
+           class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined">add_circle</span>
+            <span th:text="#{org.create}"></span>
+        </a>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(organizations)}" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{org.col.logo}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{org.col.name}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{org.col.address}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{org.col.tax}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{org.col.contact}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{org.col.status}"></th>
+                    <th class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{org.col.actions}"></th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                <tr th:each="org : ${organizations}" class="hover:bg-slate-50/50 transition-colors">
+                    <td class="px-6 py-4">
+                        <img th:if="${org.logoUrl != null}" th:src="${org.logoUrl}"
+                             class="w-12 h-12 rounded-xl object-cover border border-slate-100"/>
+                        <div th:unless="${org.logoUrl != null}"
+                             class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-surface-variant">image</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="font-bold text-sm text-on-surface" th:text="${org.name}"></span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-on-surface-variant" th:text="${org.legalAddress}"></td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600" th:text="${org.taxNumber}"></span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-on-surface-variant" th:text="${org.mainContact}"></td>
+                    <td class="px-6 py-4">
+                        <span th:text="${org.status}"
+                              th:class="${org.status.name() == 'ACTIVE'} ? 'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700' :
+                                         (${org.status.name() == 'PENDING'} ? 'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700' :
+                                         'inline-flex px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700')">
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <a th:href="@{/orgadmin/organizations/edit/{id}(id=${org.id})}"
+                               class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-primary bg-surface-container-low hover:bg-blue-100 transition-colors">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                                <span th:text="#{org.edit}"></span>
+                            </a>
+                            <form method="post" th:action="@{/orgadmin/organizations/delete/{id}(id=${org.id})}" class="inline">
+                                <button type="submit"
+                                        th:onclick="'return confirm(\'' + #{org.confirm.delete} + '\')'"
+                                        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors border-none cursor-pointer">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                    <span th:text="#{org.delete}"></span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('[data-alert]');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }, 3000);
+        });
+    });
+</script>
+</body>
+</html>

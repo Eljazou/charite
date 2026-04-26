@@ -2,15 +2,13 @@ package com.example.charite.entity;
 
 import com.example.charite.enums.Role;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(
         name = "users",
@@ -36,4 +34,13 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
+
+    @Column(nullable = false)
+    private String theme = "light";
+
+    @Column(nullable = false)
+    private String language = "fr";
+
+    @Column
+    private String avatarUrl;
 }

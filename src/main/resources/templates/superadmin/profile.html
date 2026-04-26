@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="#{title.profile}"></title>
+    <th:block th:replace="~{layout/base :: common}"></th:block>
+</head>
+
+<body class="bg-[#f8f9ff] text-on-surface">
+
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
+
+<th:block th:replace="~{layout/header :: topbar('profile.header')}"></th:block>
+
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
+    <section class="flex justify-between items-end mb-8 mt-6">
+        <div>
+            <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1" th:text="#{profile.title}"></h2>
+            <p class="text-on-surface-variant" th:text="#{profile.subtitle}"></p>
+        </div>
+    </section>
+
+    <!-- ALERTES SUCCÈS -->
+    <div th:if="${param.updated}" data-alert
+         class="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+        <span class="font-medium text-sm" th:text="#{profile.updated}"></span>
+    </div>
+    <div th:if="${param.passwordChanged}" data-alert
+         class="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-emerald-600">lock</span>
+        <span class="font-medium text-sm" th:text="#{profile.passwordChanged}"></span>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 max-w-3xl">
+
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+
+            <!-- Avatar actuel -->
+            <div class="flex items-center gap-5 mb-6 pb-6 border-b border-slate-100">
+                <div class="relative">
+                    <img th:if="${user.avatarUrl != null and !#strings.isEmpty(user.avatarUrl)}"
+                         th:src="${user.avatarUrl}"
+                         class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
+                         alt="Avatar"/>
+                    <div th:if="${user.avatarUrl == null or #strings.isEmpty(user.avatarUrl)}"
+                         class="w-16 h-16 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-xl">
+                        <span th:text="${#strings.substring(user.fullName, 0, 1)}">A</span>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-extrabold text-lg text-on-surface" th:text="${user.fullName}"></p>
+                    <p class="text-sm text-on-surface-variant" th:text="${user.email}"></p>
+                    <span class="mt-1 inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700"
+                          th:text="${user.role}"></span>
+                </div>
+            </div>
+
+            <!-- Formulaire infos -->
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-4"
+               th:text="#{profile.info}"></p>
+
+            <div th:if="${error}" class="mb-4 flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl">
+                <span class="material-symbols-outlined text-red-500 text-sm">error</span>
+                <span class="font-medium text-sm" th:text="${error}"></span>
+            </div>
+
+            <form method="post" th:action="@{/superadmin/profile/update}" th:object="${profileReq}"
+                  enctype="multipart/form-data" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5"
+                               th:text="#{profile.fullname}"></label>
+                        <input type="text" th:field="*{fullName}" th:placeholder="${user.fullName}" class="form-input"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5"
+                               th:text="#{profile.photo}"></label>
+                        <div class="flex items-center gap-3">
+                            <div class="relative cursor-pointer group" onclick="document.getElementById('avatarFileInput').click()">
+                                <img id="avatarPreview"
+                                     th:if="${user.avatarUrl != null and !#strings.isEmpty(user.avatarUrl)}"
+                                     th:src="${user.avatarUrl}"
+                                     class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"/>
+                                <div id="avatarInitial"
+                                     th:if="${user.avatarUrl == null or #strings.isEmpty(user.avatarUrl)}"
+                                     class="w-12 h-12 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-lg">
+                                    <span th:text="${#strings.substring(user.fullName, 0, 1)}">A</span>
+                                </div>
+                                <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="material-symbols-outlined text-white text-sm">photo_camera</span>
+                                </div>
+                            </div>
+                            <span class="text-xs text-slate-400" th:text="#{profile.click}"></span>
+                        </div>
+                        <input type="file" id="avatarFileInput" name="avatarFile"
+                               accept="image/*" class="hidden" onchange="previewAvatar(this)"/>
+                    </div>
+                </div>
+
+                <!-- THÈME -->
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2"
+                           th:text="#{profile.theme}"></label>
+                    <div class="flex gap-3" id="themeSelector">
+                        <label id="label-light"
+                               class="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 cursor-pointer font-bold text-sm transition-all hover:border-primary"
+                               th:classappend="${user.theme == 'light'} ? 'border-primary bg-surface-container-low text-primary' : 'border-slate-200 text-slate-500'">
+                            <input type="radio" th:field="*{theme}" value="light" class="hidden" onchange="updateThemeLabel()"/>
+                            <span class="material-symbols-outlined text-base">light_mode</span>
+                            <span th:text="#{theme.light}"></span>
+                        </label>
+                        <label id="label-dark"
+                               class="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 cursor-pointer font-bold text-sm transition-all hover:border-primary"
+                               th:classappend="${user.theme == 'dark'} ? 'border-primary bg-surface-container-low text-primary' : 'border-slate-200 text-slate-500'">
+                            <input type="radio" th:field="*{theme}" value="dark" class="hidden" onchange="updateThemeLabel()"/>
+                            <span class="material-symbols-outlined text-base">dark_mode</span>
+                            <span th:text="#{theme.dark}"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- LANGUE -->
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2"
+                           th:text="#{profile.language}"></label>
+                    <div class="flex gap-3">
+                        <label th:classappend="${user.language == 'fr'} ? 'border-primary bg-surface-container-low text-primary' : 'border-slate-200 text-slate-500'"
+                               class="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 cursor-pointer font-bold text-sm transition-all hover:border-primary">
+                            <input type="radio" th:field="*{language}" value="fr" class="hidden" onchange="updateLangLabel()"/>
+                            🇫🇷 Français
+                        </label>
+                        <label th:classappend="${user.language == 'en'} ? 'border-primary bg-surface-container-low text-primary' : 'border-slate-200 text-slate-500'"
+                               class="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 cursor-pointer font-bold text-sm transition-all hover:border-primary">
+                            <input type="radio" th:field="*{language}" value="en" class="hidden" onchange="updateLangLabel()"/>
+                            🇬🇧 English
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="bg-primary-gradient text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:scale-[1.02] transition-all">
+                    <span class="material-symbols-outlined">save</span>
+                    <span th:text="#{profile.save}"></span>
+                </button>
+            </form>
+        </div>
+
+        <!-- CARTE 2 : Mot de passe -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-4"
+               th:text="#{password.title}"></p>
+
+            <div th:if="${passwordError}" class="mb-4 flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl">
+                <span class="material-symbols-outlined text-red-500 text-sm">error</span>
+                <span class="font-medium text-sm" th:text="${passwordError}"></span>
+            </div>
+
+            <form method="post" th:action="@{/templates/superadmin/profile/password}" th:object="${passwordReq}" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5"
+                               th:text="#{password.current}"></label>
+                        <input type="password" th:field="*{currentPassword}" class="form-input" placeholder="••••••••" required/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5"
+                               th:text="#{password.new}"></label>
+                        <input type="password" th:field="*{newPassword}" class="form-input" placeholder="••••••••" required/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5"
+                               th:text="#{password.confirm}"></label>
+                        <input type="password" th:field="*{confirmPassword}" class="form-input" placeholder="••••••••" required/>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-700 hover:scale-[1.02] transition-all">
+                    <span class="material-symbols-outlined">lock_reset</span>
+                    <span th:text="#{password.submit}"></span>
+                </button>
+            </form>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    function previewAvatar(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                let preview = document.getElementById('avatarPreview');
+                const initial = document.getElementById('avatarInitial');
+                if (!preview) {
+                    preview = document.createElement('img');
+                    preview.id = 'avatarPreview';
+                    preview.className = 'w-12 h-12 rounded-full object-cover border-2 border-white shadow-md';
+                    document.querySelector('.group').prepend(preview);
+                }
+                if (initial) initial.style.display = 'none';
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function updateThemeLabel() {
+        const radios = document.querySelectorAll('input[name="theme"]');
+        radios.forEach(radio => {
+            const label = radio.closest('label');
+            if (radio.checked) {
+                label.classList.add('border-primary', 'bg-surface-container-low', 'text-primary');
+                label.classList.remove('border-slate-200', 'text-slate-500');
+            } else {
+                label.classList.remove('border-primary', 'bg-surface-container-low', 'text-primary');
+                label.classList.add('border-slate-200', 'text-slate-500');
+            }
+        });
+    }
+
+    function updateLangLabel() {
+        const radios = document.querySelectorAll('input[name="language"]');
+        radios.forEach(radio => {
+            const label = radio.closest('label');
+            if (radio.checked) {
+                label.classList.add('border-primary', 'bg-surface-container-low', 'text-primary');
+                label.classList.remove('border-slate-200', 'text-slate-500');
+            } else {
+                label.classList.remove('border-primary', 'bg-surface-container-low', 'text-primary');
+                label.classList.add('border-slate-200', 'text-slate-500');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('[data-alert]');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }, 3000);
+        });
+    });
+</script>
+</body>
+</html>

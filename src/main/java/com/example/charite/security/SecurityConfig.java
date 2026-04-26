@@ -3,7 +3,6 @@ package com.example.charite.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,19 +25,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/register", "/css/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/organizations").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/organizations/create").hasRole("ORG_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/organizations/create").hasRole("ORG_ADMIN")
+                        .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/orgadmin/**").hasRole("ORG_ADMIN")
                         .requestMatchers("/admin/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/actions/create", "/actions/my").hasRole("ORG_ADMIN")
-                        .requestMatchers("/actions/**").authenticated()
-                        .requestMatchers("/actions").authenticated()
-                        .requestMatchers("/dashboard/**").hasRole("ORG_ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/actions/delete/**").hasRole("ORG_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/actions/edit/**").hasRole("ORG_ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/actions/edit/**").hasRole("ORG_ADMIN")
                         .requestMatchers("/actions/my-donations").hasRole("USER")
-                        .requestMatchers("/admin/users/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/actions/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -49,9 +40,9 @@ public class SecurityConfig {
                             boolean isOrgAdmin = authentication.getAuthorities().stream()
                                     .anyMatch(a -> a.getAuthority().equals("ROLE_ORG_ADMIN"));
                             if (isSuperAdmin) {
-                                response.sendRedirect("/admin/pending");
+                                response.sendRedirect("/superadmin/pending");
                             } else if (isOrgAdmin) {
-                                response.sendRedirect("/dashboard");
+                                response.sendRedirect("/orgadmin/dashboard");
                             } else {
                                 response.sendRedirect("/actions");
                             }

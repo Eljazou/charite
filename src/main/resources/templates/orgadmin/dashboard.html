@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <th:block th:replace="~{layout/base :: common}"></th:block>
+</head>
+
+<body class="bg-[#f8f9ff] text-on-surface">
+
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
+<th:block th:replace="~{layout/header :: topbar('orgadmin.dashboard.header')}"></th:block>
+
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
+
+    <!-- NO ORGANISATION BANNER -->
+    <div th:if="${stats.organization == null}"
+         class="mt-6 mb-8 flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-4 rounded-xl">
+        <span class="material-symbols-outlined text-amber-500" style="font-variation-settings:'FILL' 1;">info</span>
+        <span class="font-medium text-sm" th:text="#{dashboard.no.org}"></span>
+        <a th:href="@{/orgadmin/organizations/create}" class="underline font-bold" th:text="#{dashboard.no.org.create}"></a>
+    </div>
+
+    <!-- PAGE HEADER -->
+    <section class="flex justify-between items-end mb-10 mt-6">
+        <div>
+            <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1" th:text="#{dashboard.welcome}"></h2>
+            <p class="text-on-surface-variant"
+               th:text="${stats.organization != null ? stats.organization.name : ''}"></p>
+        </div>
+        <a th:href="@{/orgadmin/actions/create}"
+           class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:scale-[1.02] transition-all">
+            <span class="material-symbols-outlined">add_circle</span>
+            <span th:text="#{dashboard.new.action}"></span>
+        </a>
+    </section>
+
+    <!-- STAT CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{dashboard.stat.total.actions}"></p>
+            <h3 class="text-3xl font-black text-on-surface" th:text="${stats.totalActions}">0</h3>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{dashboard.stat.collected}"></p>
+            <h3 class="text-3xl font-black text-primary" th:text="${stats.totalCollected}">0</h3>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{dashboard.stat.goal}"></p>
+            <h3 class="text-3xl font-black text-slate-700" th:text="${stats.totalGoal}">0</h3>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{dashboard.stat.donations}"></p>
+            <h3 class="text-3xl font-black text-on-surface" th:text="${stats.recentDonations.size()}">0</h3>
+        </div>
+    </div>
+
+    <!-- ACTIONS PROGRESSION -->
+    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">trending_up</span>
+        <span th:text="#{dashboard.progress.title}"></span>
+    </h3>
+
+    <div th:if="${#lists.isEmpty(stats.actions)}"
+         class="flex flex-col items-center justify-center py-16 text-center bg-white rounded-2xl border border-slate-100 mb-12">
+        <div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined text-3xl text-on-surface-variant">rocket_launch</span>
+        </div>
+        <p class="text-on-surface-variant font-medium text-sm mb-4" th:text="#{dashboard.no.actions}"></p>
+        <a th:href="@{/orgadmin/actions/create}"
+           class="bg-primary-gradient text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">add_circle</span>
+            <span th:text="#{dashboard.create.action}"></span>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12" th:unless="${#lists.isEmpty(stats.actions)}">
+        <div th:each="action : ${stats.actions}"
+             class="group bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 flex flex-col hover:shadow-md transition-all">
+            <div class="p-6 flex-1 flex flex-col">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <span th:text="${action.status}"
+                              th:class="${action.status.name() == 'ACTIVE'} ? 'text-[10px] font-bold px-2 py-1 rounded bg-emerald-50 text-emerald-700 uppercase mb-2 inline-block' :
+                                         (${action.status.name() == 'PENDING_APPROVAL'} ? 'text-[10px] font-bold px-2 py-1 rounded bg-amber-50 text-amber-700 uppercase mb-2 inline-block' :
+                                         'text-[10px] font-bold px-2 py-1 rounded bg-red-50 text-red-700 uppercase mb-2 inline-block')">
+                        </span>
+                        <h3 class="text-lg font-bold text-on-surface leading-tight" th:text="${action.title}"></h3>
+                    </div>
+                </div>
+                <div class="mt-auto">
+                    <div class="flex justify-between text-xs font-bold mb-2">
+                        <span class="text-on-surface-variant" th:text="#{dashboard.collected}"></span>
+                        <span class="text-primary" th:text="${action.collectedAmount} + ' MAD'">0</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-1">
+                        <div class="h-full bg-primary-gradient rounded-full"
+                             th:style="'width:' + ${stats.actionProgress[action.id]} + '%'"></div>
+                    </div>
+                    <div class="text-right text-[10px] text-on-surface-variant mb-4"
+                         th:text="${stats.actionProgress[action.id]} + '%'">0%</div>
+                    <div class="flex justify-between items-center text-[11px] text-on-surface-variant border-t border-slate-50 pt-4">
+                        <div class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">event</span>
+                            <span th:text="${action.endDate}">Date</span>
+                        </div>
+                        <span class="font-bold text-slate-700"
+                              th:text="#{dashboard.goal.prefix} + ' ' + ${action.goalAmount} + ' MAD'"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECENT DONATIONS -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="px-8 py-6 border-b border-slate-50 flex justify-between items-center">
+            <h3 class="font-bold text-lg" th:text="#{dashboard.recent.donations}"></h3>
+        </div>
+
+        <div th:if="${#lists.isEmpty(stats.recentDonations)}"
+             class="flex flex-col items-center justify-center py-12 text-center">
+            <span class="material-symbols-outlined text-3xl text-on-surface-variant mb-2">volunteer_activism</span>
+            <p class="text-on-surface-variant text-sm" th:text="#{dashboard.no.donations}"></p>
+        </div>
+
+        <div class="overflow-x-auto" th:unless="${#lists.isEmpty(stats.recentDonations)}">
+            <table class="w-full">
+                <thead>
+                <tr class="bg-slate-50/50">
+                    <th class="px-8 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase" th:text="#{dashboard.col.donor}"></th>
+                    <th class="px-8 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase" th:text="#{dashboard.col.action}"></th>
+                    <th class="px-8 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase" th:text="#{dashboard.col.amount}"></th>
+                    <th class="px-8 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase" th:text="#{dashboard.col.date}"></th>
+                    <th class="px-8 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase" th:text="#{dashboard.col.method}"></th>
+                    <th class="px-8 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase" th:text="#{dashboard.col.status}"></th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                <tr th:each="donation : ${stats.recentDonations}" class="hover:bg-slate-50/30 transition-colors">
+                    <td class="px-8 py-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-primary-gradient flex items-center justify-center text-white text-xs font-bold"
+                                 th:text="${#strings.substring(donation.user.fullName, 0, 1)}">A</div>
+                            <span class="font-bold text-sm text-on-surface" th:text="${donation.user.fullName}"></span>
+                        </div>
+                    </td>
+                    <td class="px-8 py-4 text-sm text-on-surface-variant" th:text="${donation.charityAction.title}"></td>
+                    <td class="px-8 py-4">
+                        <span class="font-bold text-primary text-sm" th:text="${donation.amount} + ' MAD'">0</span>
+                    </td>
+                    <td class="px-8 py-4 text-sm text-slate-500" th:text="${donation.donationDate}"></td>
+                    <td class="px-8 py-4">
+                        <span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-600"
+                              th:text="${donation.paymentMethod.name() == 'CREDIT_CARD'} ? #{dashboard.payment.card} :
+                                        (${donation.paymentMethod.name() == 'PAYPAL'} ? #{dashboard.payment.paypal} : #{dashboard.payment.bank})">
+                        </span>
+                    </td>
+                    <td class="px-8 py-4">
+                        <span th:text="${donation.status}"
+                              th:class="${donation.status.name() == 'COMPLETED'} ? 'text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-1 rounded' :
+                                         (${donation.status.name() == 'PENDING'} ? 'text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded' :
+                                         'text-[10px] font-bold bg-red-50 text-red-700 px-2 py-1 rounded')">
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

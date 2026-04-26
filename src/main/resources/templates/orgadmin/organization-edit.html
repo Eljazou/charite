@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Modifier l'Organisation</title>
+    <th:block th:replace="~{layout/base :: common}"></th:block>
+</head>
+<body class="bg-[#f8f9ff] text-on-surface">
+
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
+<th:block th:replace="~{layout/header :: topbar('orgadmin.org.edit.header')}"></th:block>
+
+<main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
+
+    <section class="flex justify-between items-end mb-8 mt-6">
+        <div>
+            <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1">Modifier l'Organisation</h2>
+            <p class="text-on-surface-variant">Les modifications seront soumises à l'approbation du super admin.</p>
+        </div>
+    </section>
+
+    <div th:if="${error}" class="mb-6 flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3 rounded-xl">
+        <span class="material-symbols-outlined text-red-500">error</span>
+        <span class="font-medium text-sm" th:text="${error}"></span>
+    </div>
+
+    <div class="mb-8 p-5 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-4">
+        <span class="material-symbols-outlined text-amber-500">verified_user</span>
+        <div>
+            <h4 class="text-amber-900 font-bold text-sm">Contrôle de conformité</h4>
+            <p class="text-amber-800/80 text-xs mt-0.5 font-medium">Toute modification nécessite une nouvelle approbation de l'administrateur.</p>
+        </div>
+    </div>
+
+    <form method="post" th:action="@{/orgadmin/organizations/edit/{id}(id=${orgId})}"
+          th:object="${req}" enctype="multipart/form-data">
+
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-6">
+
+            <div class="flex flex-col md:flex-row items-center gap-8 pb-6 border-b border-slate-100">
+                <div class="relative group w-32 h-32 shrink-0">
+                    <div class="w-full h-full rounded-2xl bg-surface-container-low flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-200">
+                        <img id="preview"
+                             th:src="*{logoUrl != null ? logoUrl : 'https://ui-avatars.com/api/?name=Org&background=0053db&color=fff'}"
+                             class="w-full h-full object-cover" alt="Logo preview"/>
+                    </div>
+                    <div class="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-xl shadow-lg">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                    </div>
+                    <input type="file" name="logoFile" accept="image/*" onchange="previewImage(this)"
+                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"/>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800">Logo de l'organisation</h3>
+                    <p class="text-xs text-slate-400 mt-1 mb-3">Cliquez sur l'image pour uploader une nouvelle version.</p>
+                    <span id="file-name-text" class="text-[10px] px-3 py-1 bg-slate-100 text-slate-600 rounded-full font-bold uppercase">Aucun fichier sélectionné</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Nom officiel</label>
+                    <input type="text" th:field="*{name}" required class="form-input"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Siège social</label>
+                    <input type="text" th:field="*{legalAddress}" required class="form-input"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Numéro fiscal</label>
+                    <input type="text" th:field="*{taxNumber}" required class="form-input"/>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Contact principal</label>
+                    <input type="text" th:field="*{mainContact}" required class="form-input"/>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Description</label>
+                    <textarea th:field="*{description}" rows="5" class="form-input"
+                              placeholder="Mission et vision de l'organisation..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-4 mt-6">
+            <a th:href="@{/orgadmin/organizations}"
+               class="px-8 py-3 text-sm font-bold text-slate-500 hover:text-slate-700 bg-white rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors">
+                Annuler
+            </a>
+            <button type="submit"
+                    class="px-8 py-3 bg-primary-gradient text-white rounded-xl font-bold text-sm shadow-lg hover:scale-[1.02] transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined">sync_saved_locally</span>
+                Enregistrer les modifications
+            </button>
+        </div>
+    </form>
+</main>
+
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('preview');
+        const fileNameText = document.getElementById('file-name-text');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) { preview.src = e.target.result; };
+            reader.readAsDataURL(input.files[0]);
+            fileNameText.textContent = "Fichier prêt : " + input.files[0].name;
+        }
+    }
+</script>
+</body>
+</html>

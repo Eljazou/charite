@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<head>
+    <style>
+        html.dark body { background: #0f172a; color: #e2e8f0; }
+        html.dark .bg-white { background: #1e293b !important; }
+        html.dark .border-slate-100 { border-color: #334155 !important; }
+        html.dark aside { background: #1e293b !important; border-color: #334155 !important; }
+        html.dark header { background: rgba(30,41,59,0.8) !important; }
+        html.dark .text-slate-800, html.dark .text-on-surface { color: #e2e8f0 !important; }
+        html.dark .text-slate-500 { color: #94a3b8 !important; }
+        html.dark .text-on-surface-variant { color: #7dd3fc !important; }
+        html.dark .bg-\[#f8f9ff\] { background: #0f172a !important; }
+        html.dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important; }
+    </style>
+</head>
 <body>
 
 <aside th:fragment="sidebar" class="h-screen w-64 fixed left-0 top-0 flex flex-col py-6 px-4 bg-white border-r border-slate-100 z-50">
@@ -11,76 +25,86 @@
                 <span class="material-symbols-outlined">volunteer_activism</span>
             </div>
             <div>
-                <h1 class="text-lg font-bold text-slate-900">Charite</h1>
+                <h1 class="text-lg font-bold text-slate-900">CharityAct</h1>
             </div>
         </div>
     </div>
 
     <nav class="flex-1 space-y-1">
+
+        <!-- ORG_ADMIN -->
         <div sec:authorize="hasRole('ORG_ADMIN')">
-            <a th:href="@{/dashboard}"
-               th:classappend="${currentUrl == '/dashboard'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+            <a th:href="@{/orgadmin/dashboard}"
+               th:classappend="${currentUrl == '/orgadmin/dashboard'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">dashboard</span>
-                <span>Tableau de bord</span>
+                <span th:text="#{sidebar.dashboard}"></span>
             </a>
-            <a th:href="@{/organizations}"
-               th:classappend="${currentUrl == '/organizations'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+            <a th:href="@{/orgadmin/organizations}"
+               th:classappend="${currentUrl == '/orgadmin/organizations'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">corporate_fare</span>
-                <span>Organisation</span>
+                <span th:text="#{sidebar.organizations}"></span>
             </a>
-            <a th:href="@{/actions/my}"
-               th:classappend="${currentUrl == '/actions/my'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+            <a th:href="@{/orgadmin/actions}"
+               th:classappend="${currentUrl == '/orgadmin/actions'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">rocket_launch</span>
-                <span>Mes Actions</span>
+                <span th:text="#{sidebar.actions}"></span>
             </a>
-            <a th:href="@{/actions/create}"
-               th:classappend="${currentUrl == '/actions/create'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+            <a th:href="@{/orgadmin/profile}"
+               th:classappend="${currentUrl == '/orgadmin/profile'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
-                <span class="material-symbols-outlined">add_circle</span>
-                <span>Nouvelle Action</span>
+                <span class="material-symbols-outlined">manage_accounts</span>
+                <span th:text="#{sidebar.profile}"></span>
             </a>
         </div>
 
+        <!-- USER -->
         <div sec:authorize="hasRole('USER')">
             <a th:href="@{/actions}"
                th:classappend="${currentUrl == '/actions'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">bolt</span>
-                <span>Actions</span>
+                <span th:text="#{sidebar.discover}"></span>
             </a>
             <a th:href="@{/actions/my-donations}"
                th:classappend="${currentUrl == '/actions/my-donations'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">volunteer_activism</span>
-                <span>Mes Dons</span>
+                <span th:text="#{sidebar.donations}"></span>
             </a>
         </div>
 
-
+        <!-- SUPER_ADMIN -->
         <div sec:authorize="hasRole('SUPER_ADMIN')">
-            <a th:href="@{/admin/pending}"
-               th:classappend="${currentUrl == '/admin/pending'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+            <a th:href="@{/superadmin/pending}"
+               th:classappend="${currentUrl == '/superadmin/pending'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">admin_panel_settings</span>
-                <span>Demandes</span>
+                <span th:text="#{sidebar.requests}"></span>
             </a>
-            <a th:href="@{/admin/users}"
-               th:classappend="${currentUrl == '/admin/users'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+            <a th:href="@{/superadmin/users}"
+               th:classappend="${currentUrl == '/superadmin/users'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">group</span>
-                <span>Utilisateurs</span>
+                <span th:text="#{sidebar.users}"></span>
+            </a>
+            <a th:href="@{/superadmin/profile}"
+               th:classappend="${currentUrl == '/superadmin/profile'} ? 'bg-surface-container-low text-primary' : 'text-on-surface-variant hover:bg-slate-50'"
+               class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all">
+                <span class="material-symbols-outlined text-lg">manage_accounts</span>
+                <span th:text="#{sidebar.profile}"></span>
             </a>
         </div>
+
     </nav>
 
     <div class="mt-auto pt-4 border-t border-slate-100">
         <form method="post" th:action="@{/logout}">
             <button type="submit" class="flex items-center gap-3 px-3 py-2.5 w-full text-red-500 hover:bg-red-50 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">logout</span>
-                <span>Déconnexion</span>
+                <span th:text="#{sidebar.logout}"></span>
             </button>
         </form>
     </div>

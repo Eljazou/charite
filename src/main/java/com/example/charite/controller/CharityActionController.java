@@ -25,38 +25,6 @@ public class CharityActionController {
     private final CharityActionService charityActionService;
     private final DonationService donationService;
 
-    // ORG_ADMIN: list their actions
-    @GetMapping("/my")
-    public String myActions(Model model, Principal principal) {
-        model.addAttribute("actions", charityActionService.findByOrganization(principal.getName()));
-        model.addAttribute("currentUrl", "/actions/my");
-        return "actions/my";
-    }
-
-    // ORG_ADMIN: create form
-    @GetMapping("/create")
-    public String createForm(Model model) {
-        model.addAttribute("req", new CharityActionCreateRequest());
-        return "actions/create";
-    }
-
-    // ORG_ADMIN: submit create
-    @PostMapping("/create")
-    public String create(@ModelAttribute("req") CharityActionCreateRequest req,
-                         @RequestParam(value = "images", required = false) List<MultipartFile> images,
-                         @RequestParam(value = "videos", required = false) List<MultipartFile> videos,
-                         Principal principal,
-                         Model model) {
-        try {
-            charityActionService.requestCreate(req, images, videos, principal.getName());
-            return "redirect:/actions/my?submitted";
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "actions/create";
-        }
-    }
-
-
     @PostMapping("/{id}/donate")
     public String donate(@PathVariable Long id,
                          @ModelAttribute("req") DonationRequest req,
@@ -158,55 +126,11 @@ public class CharityActionController {
         model.addAttribute("currentUrl", "/actions");
         return "actions/list";
     }
-    @GetMapping("/edit/{id}")
-    public String editForm(@PathVariable Long id, Model model) {
-        CharityAction action = charityActionService.findById(id);
-        CharityActionCreateRequest req = new CharityActionCreateRequest();
-        req.setTitle(action.getTitle());
-        req.setDescription(action.getDescription());
-        req.setLocation(action.getLocation());
-        req.setStartDate(action.getStartDate());
-        req.setEndDate(action.getEndDate());
-        req.setGoalAmount(action.getGoalAmount());
-        req.setStatus(action.getStatus()); // ← ajoute
-        model.addAttribute("req", req);
-        model.addAttribute("actionId", id);
-        model.addAttribute("currentMedias", action.getMediaList());
-        model.addAttribute("statuses", CharityActionStatus.values()); // ← ajoute
-        return "actions/edit";
-    }
-    @PostMapping("/edit/{id}")
-    public String edit(@PathVariable Long id,
-                       @ModelAttribute("req") CharityActionCreateRequest req,
-                       @RequestParam(value = "images", required = false) List<MultipartFile> images,
-                       @RequestParam(value = "videos", required = false) List<MultipartFile> videos,
-                       Principal principal,
-                       Model model) {
-        try {
-            charityActionService.requestUpdate(id, req, images, videos, principal.getName());
-            return "redirect:/actions/my?updateRequested";
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("actionId", id);
-            return "actions/edit";
-        }
-    }
 
-    @PostMapping("/delete/{id}")
-    public String deleteAction(@PathVariable Long id, Principal principal) {
-        charityActionService.requestDelete(id, principal.getName());
-        return "redirect:/actions/my?deleteRequested";
-    }
     @GetMapping("/my-donations")
     public String myDonations(Model model, Principal principal) {
         model.addAttribute("donations", donationService.findByUser(principal.getName()));
         model.addAttribute("currentUrl", "/actions/my-donations");
         return "actions/my-donations";
-    }
-    @PostMapping("/media/delete/{mediaId}")
-    public String deleteMedia(@PathVariable Long mediaId,
-                              @RequestParam("actionId") Long actionId) {
-        charityActionService.deleteMedia(mediaId);
-        return "redirect:/actions/edit/" + actionId;
     }
 }

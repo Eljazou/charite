@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<head></head>
+<body>
+
+<th:block th:fragment="topbar(titleKey)">
+    <header class="fixed top-0 left-64 right-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <h2 class="font-bold text-slate-800 flex-1 text-left" th:text="#{${titleKey}}"></h2>
+
+        <div class="relative" id="avatarMenu">
+            <button onclick="toggleMenu()" class="flex items-center gap-2 focus:outline-none">
+                <img th:if="${currentUser.avatarUrl != null and !#strings.isEmpty(currentUser.avatarUrl)}"
+                     th:src="${currentUser.avatarUrl}"
+                     class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-md"/>
+                <div th:if="${currentUser.avatarUrl == null or #strings.isEmpty(currentUser.avatarUrl)}"
+                     class="w-9 h-9 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-sm">
+                    <span th:text="${#strings.substring(currentUser.fullName, 0, 1)}">A</span>
+                </div>
+            </button>
+
+            <div id="dropdownMenu"
+                 class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 p-4">
+
+                <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
+                    <img th:if="${currentUser.avatarUrl != null and !#strings.isEmpty(currentUser.avatarUrl)}"
+                         th:src="${currentUser.avatarUrl}"
+                         class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"/>
+                    <div th:if="${currentUser.avatarUrl == null or #strings.isEmpty(currentUser.avatarUrl)}"
+                         class="w-12 h-12 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-lg">
+                        <span th:text="${#strings.substring(currentUser.fullName, 0, 1)}">A</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-on-surface" th:text="${currentUser.fullName}"></p>
+                        <p class="text-xs text-on-surface-variant" th:text="${currentUser.email}"></p>
+                        <span class="mt-1 inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700"
+                              th:text="${currentUser.role}"></span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-4 pb-4 border-b border-slate-100">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-medium" th:text="#{profile.theme}"></span>
+                        <span class="font-bold text-on-surface flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm"
+                              th:text="${currentUser.theme == 'dark'} ? 'dark_mode' : 'light_mode'"></span>
+                        <span th:text="${currentUser.theme == 'dark'} ? #{theme.dark} : #{theme.light}"></span>
+                    </span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-medium" th:text="#{profile.language}"></span>
+                        <span class="font-bold text-on-surface"
+                              th:text="${currentUser.language == 'fr'} ? '🇫🇷 Français' : '🇬🇧 English'"></span>
+                    </div>
+                </div>
+
+                <a th:href="${#authorization.expression('hasRole(''SUPER_ADMIN'')')} ? @{/superadmin/profile} : @{/orgadmin/profile}"
+                   class="w-full bg-primary-gradient text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
+                    <span class="material-symbols-outlined text-sm">manage_accounts</span>
+                    <span th:text="#{dropdown.manage}"></span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('dropdownMenu');
+            menu.classList.toggle('hidden');
+        }
+        document.addEventListener('click', function(e) {
+            const avatarMenu = document.getElementById('avatarMenu');
+            if (avatarMenu && !avatarMenu.contains(e.target)) {
+                document.getElementById('dropdownMenu').classList.add('hidden');
+            }
+        });
+    </script>
+</th:block>
+
+</body>
+</html>
