@@ -1,0 +1,29 @@
+# Database
+spring.datasource.url=jdbc:mysql://localhost:3306/charity_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=CHANGE_ME
+
+# JPA
+spring.jpa.hibernate.ddl-auto=update
+
+# Server
+server.port=8080
+
+# Stripe
+stripe.publishable-key=pk_test_CHANGE_ME
+stripe.secret-key=sk_test_CHANGE_ME
+stripe.webhook-secret=whsec_CHANGE_ME
+
+# Thymeleaf
+spring.thymeleaf.enable-spring-el-compiler=true
+
+# Upload limits
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
+
+# Static resources
+spring.web.resources.static-locations=classpath:/static/,file:uploads/
+
+# Translations
+spring.messages.basename=messages
+spring.messages.encoding=UTF-8
