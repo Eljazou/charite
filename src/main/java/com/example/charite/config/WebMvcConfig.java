@@ -25,6 +25,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(themeInterceptor);
+        registry.addInterceptor(localeChangeInterceptor()); // ← ajoute cette ligne
     }
 
     @Bean
