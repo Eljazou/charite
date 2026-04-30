@@ -18,6 +18,8 @@
 
 <th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
 
+<th:block th:replace="~{layout/header :: topbar('actions.detail.header')}"></th:block>
+
 <!-- TOPBAR -->
 <header class="fixed top-0 left-64 right-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100">
     <div class="flex items-center gap-3">
@@ -31,7 +33,7 @@
             <div class="text-right">
                 <p class="text-xs font-bold text-on-surface"
                    th:text="${currentUser != null ? currentUser.fullName : ''}"></p>
-                <p class="text-[10px] text-on-surface-variant">Membre</p>
+                <p class="text-[10px] text-on-surface-variant" th:text="#{donations.member}"></p>
             </div>
             <div class="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-xs"
                  th:text="${currentUser != null ? #strings.substring(currentUser.fullName, 0, 1) : 'U'}">U</div>
@@ -72,10 +74,14 @@
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
                 <h3 class="font-bold text-lg text-on-surface mb-4 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">description</span>
-                    À propos de cette action
+                    <span th:text="#{detail.about}"></span>
                 </h3>
-                <p class="text-sm text-on-surface-variant leading-relaxed"
-                   th:text="${action.description != null ? action.description : 'Aucune description disponible.'}"></p>
+                <p th:if="${action.description != null}"
+                   class="text-sm text-on-surface-variant leading-relaxed"
+                   th:text="${action.description}"></p>
+                <p th:if="${action.description == null}"
+                   class="text-sm text-on-surface-variant leading-relaxed"
+                   th:text="#{detail.no.description}"></p>
             </div>
 
             <!-- MEDIA GALLERY -->
@@ -83,7 +89,7 @@
                  th:if="${action.mediaList.size() > 1}">
                 <h3 class="font-bold text-lg text-on-surface mb-4 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">photo_library</span>
-                    Galerie médias
+                    <span th:text="#{detail.gallery}"></span>
                 </h3>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div th:each="media, iterStat : ${action.mediaList}" th:if="${iterStat.index > 0}">
@@ -121,7 +127,8 @@
                 <div class="space-y-3 mb-5">
                     <div class="flex items-center gap-2 text-sm text-on-surface-variant">
                         <span class="material-symbols-outlined text-primary text-sm">location_on</span>
-                        <span th:text="${action.location != null ? action.location : 'Lieu non défini'}">Lieu</span>
+                        <span th:if="${action.location != null}" th:text="${action.location}">Lieu</span>
+                        <span th:if="${action.location == null}" th:text="#{detail.no.location}">Lieu</span>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-on-surface-variant">
                         <span class="material-symbols-outlined text-primary text-sm">calendar_today</span>
@@ -129,14 +136,14 @@
                     </div>
                     <div class="flex items-center gap-2 text-sm text-on-surface-variant">
                         <span class="material-symbols-outlined text-primary text-sm">volunteer_activism</span>
-                        <span th:text="${donationCount} + ' don(s) reçu(s)'">0 dons</span>
+                        <span th:text="${donationCount} + ' ' + #{detail.donations.count}">0 dons</span>
                     </div>
                 </div>
 
                 <!-- PROGRESS -->
                 <div class="border-t border-slate-100 pt-5">
                     <div class="flex justify-between text-xs font-bold mb-2">
-                        <span class="text-on-surface-variant">Collecté</span>
+                        <span class="text-on-surface-variant" th:text="#{dashboard.collected}"></span>
                         <span class="text-primary" th:text="${action.collectedAmount} + ' MAD'">0 MAD</span>
                     </div>
                     <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden mb-2">
@@ -145,8 +152,8 @@
                         </div>
                     </div>
                     <div class="flex justify-between text-xs text-on-surface-variant">
-                        <span th:text="${action.goalAmount != null and action.goalAmount.signum() > 0 ? action.collectedAmount.multiply(100).divide(action.goalAmount, 0, T(java.math.RoundingMode).HALF_UP) : 0} + '% atteint'">0%</span>
-                        <span class="font-bold" th:text="'Objectif: ' + ${action.goalAmount} + ' MAD'">0 MAD</span>
+                        <span th:text="${action.goalAmount != null and action.goalAmount.signum() > 0 ? action.collectedAmount.multiply(100).divide(action.goalAmount, 0, T(java.math.RoundingMode).HALF_UP) : 0} + '% ' + #{detail.reached}">0%</span>
+                        <span class="font-bold" th:text="#{dashboard.goal.prefix} + ' ' + ${action.goalAmount} + ' MAD'">0 MAD</span>
                     </div>
                 </div>
             </div>
@@ -158,14 +165,14 @@
                         <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">favorite</span>
                     </div>
                     <div>
-                        <p class="font-bold text-sm">Soutenez cette cause</p>
-                        <p class="text-xs opacity-80">Chaque don compte</p>
+                        <p class="font-bold text-sm" th:text="#{detail.donate.title}"></p>
+                        <p class="text-xs opacity-80" th:text="#{detail.donate.subtitle}"></p>
                     </div>
                 </div>
                 <a th:href="@{/actions/{id}/donate(id=${action.id})}"
                    class="w-full bg-white text-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors text-sm">
                     <span class="material-symbols-outlined text-sm">volunteer_activism</span>
-                    Faire un don maintenant
+                    <span th:text="#{detail.donate.btn}"></span>
                 </a>
             </div>
 

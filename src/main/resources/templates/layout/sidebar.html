@@ -62,11 +62,15 @@
 
         <!-- USER -->
         <div sec:authorize="hasRole('USER')">
-            <a th:href="@{/actions}" ...>
+            <a th:href="@{/actions}"
+               th:classappend="${currentUrl == '/actions'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">bolt</span>
                 <span th:text="#{sidebar.discover}"></span>
             </a>
-            <a th:href="@{/actions/my-donations}" ...>
+            <a th:href="@{/actions/my-donations}"
+               th:classappend="${currentUrl == '/actions/my-donations'} ? 'text-blue-700 bg-blue-50' : 'text-slate-500 hover:bg-slate-50'"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium">
                 <span class="material-symbols-outlined">volunteer_activism</span>
                 <span th:text="#{sidebar.donations}"></span>
             </a>
