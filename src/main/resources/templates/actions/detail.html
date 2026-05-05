@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title th:text="${action.title} + ' | CharityAct'">Détail Action</title>
+    <title th:text="'CharityAct | ' + ${action.title}">Détail Action</title>
     <th:block th:replace="~{layout/base :: common}"></th:block>
     <style>
         .media-thumb { width:100%; height:200px; object-fit:cover; border-radius:12px; border:1px solid #e2e8f0; }
@@ -17,31 +17,8 @@
 <body class="bg-[#f8f9ff] text-on-surface">
 
 <th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
+<th:block th:replace="~{layout/header :: topbar(null, @{/actions}, #{actions.list.header})}"></th:block>
 
-<th:block th:replace="~{layout/header :: topbar('actions.detail.header')}"></th:block>
-
-<!-- TOPBAR -->
-<header class="fixed top-0 left-64 right-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100">
-    <div class="flex items-center gap-3">
-        <a th:href="@{/actions}" class="text-on-surface-variant hover:text-primary transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <h2 class="font-bold text-slate-800" th:text="${action.title}">Détail Action</h2>
-    </div>
-    <div class="flex items-center gap-4 ml-4">
-        <div class="flex items-center gap-3">
-            <div class="text-right">
-                <p class="text-xs font-bold text-on-surface"
-                   th:text="${currentUser != null ? currentUser.fullName : ''}"></p>
-                <p class="text-[10px] text-on-surface-variant" th:text="#{donations.member}"></p>
-            </div>
-            <div class="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-xs"
-                 th:text="${currentUser != null ? #strings.substring(currentUser.fullName, 0, 1) : 'U'}">U</div>
-        </div>
-    </div>
-</header>
-
-<!-- MAIN -->
 <main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
 
     <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -45,10 +45,9 @@ public class DonationService {
         if (req.getPaymentMethod() == PaymentMethod.CREDIT_CARD) {
             return paymentService.createStripeSession(actionId, req.getAmount(), "mad");
         } else if (req.getPaymentMethod() == PaymentMethod.PAYPAL) {
-            // PayPal coming soon — for now redirect to a coming soon page
-            return "/actions/" + actionId + "/donate/paypal";
+            String locale = "fr".equals(donation.getUser().getLanguage()) ? "fr-FR" : "en-US"; // ← AJOUTER
+            return paymentService.createPayPalOrder(actionId, req.getAmount(), locale); // ← MODIFIER
         } else {
-            // BANK_TRANSFER — show bank details page
             return "/actions/" + actionId + "/donate/bank?donationId=" + donation.getId();
         }
     }
@@ -97,5 +96,49 @@ public class DonationService {
                 .filter(d -> d.getStatus() == DonationStatus.COMPLETED)
                 .reduce((first, second) -> second)
                 .orElse(null);
+    }
+
+
+    public void confirmPayPalDonation(Long actionId) {
+        CharityAction action = charityActionRepository.findById(actionId)
+                .orElseThrow(() -> new IllegalArgumentException("Action introuvable"));
+
+        donationRepository.findByCharityAction(action).stream()
+                .filter(d -> d.getStatus() == DonationStatus.PENDING
+                        && d.getPaymentMethod() == PaymentMethod.PAYPAL)
+                .reduce((first, second) -> second)
+                .ifPresent(d -> {
+                    d.setStatus(DonationStatus.COMPLETED);
+                    donationRepository.save(d);
+                    action.setCollectedAmount(action.getCollectedAmount().add(d.getAmount()));
+                    charityActionRepository.save(action);
+                });
+    }
+
+
+    public Donation findById(Long donationId) {
+        return donationRepository.findById(donationId)
+                .orElseThrow(() -> new IllegalArgumentException("Don introuvable"));
+    }
+
+    public void cancelDonation(Long donationId) {
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new IllegalArgumentException("Don introuvable"));
+        donation.setStatus(DonationStatus.FAILED);
+        donationRepository.save(donation);
+    }
+
+    public String resumeDonation(Long actionId, Long donationId) throws Exception {
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new IllegalArgumentException("Don introuvable"));
+
+        if (donation.getPaymentMethod() == PaymentMethod.PAYPAL) {
+            String locale = "fr".equals(donation.getUser().getLanguage()) ? "fr-FR" : "en-US";// ← AJOUTER
+            return paymentService.createPayPalOrder(actionId, donation.getAmount(), locale); // ← MODIFIER
+        } else if (donation.getPaymentMethod() == PaymentMethod.CREDIT_CARD) {
+            return paymentService.createStripeSession(actionId, donation.getAmount(), "mad");
+        } else {
+            return "/actions/" + actionId + "/donate/bank?donationId=" + donationId;
+        }
     }
 }

@@ -4,9 +4,24 @@
 <head></head>
 <body>
 
-<th:block th:fragment="topbar(titleKey)">
+<th:block th:fragment="topbar(titleKey, backUrl, backLabel)">
     <header class="fixed top-0 left-64 right-0 z-40 flex justify-between items-center px-8 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <h2 class="font-bold text-slate-800 flex-1 text-left" th:text="#{${titleKey}}"></h2>
+
+        <div class="flex items-center gap-3 flex-1">
+            <!-- BACK BUTTON -->
+            <a th:if="${backUrl != null}"
+               th:href="${backUrl}"
+               class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-semibold text-sm group">
+                <span class="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                <span th:if="${backLabel != null}" th:text="${backLabel}"></span>
+            </a>
+
+            <!-- TITLE normal -->
+            <h2 class="font-bold text-slate-800"
+                th:if="${backUrl == null and titleKey != null}"
+                th:text="#{${titleKey}}">
+            </h2>
+        </div>
 
         <div class="relative" id="avatarMenu">
             <button onclick="toggleMenu()" class="flex items-center gap-2 focus:outline-none">

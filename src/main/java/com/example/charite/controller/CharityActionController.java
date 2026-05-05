@@ -8,6 +8,7 @@ import com.example.charite.enums.CharityActionStatus;
 import com.example.charite.enums.PaymentMethod;
 import com.example.charite.service.CharityActionService;
 import com.example.charite.service.DonationService;
+import com.example.charite.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +25,7 @@ public class CharityActionController {
 
     private final CharityActionService charityActionService;
     private final DonationService donationService;
+    private final PaymentService paymentService;
 
     @PostMapping("/{id}/donate")
     public String donate(@PathVariable Long id,
@@ -104,12 +106,24 @@ public class CharityActionController {
         return "actions/payment-success";
     }
 
-    // PayPal page (coming soon)
-    @GetMapping("/{id}/donate/paypal")
-    public String paypalPage(@PathVariable Long id, Model model) {
-        model.addAttribute("action", charityActionService.findById(id));
-        return "actions/payment-paypal";
+    // PayPal success callback
+    @GetMapping("/{id}/donate/paypal/success")
+    public String paypalSuccess(@PathVariable Long id,
+                                @RequestParam("token") String orderId,
+                                Model model) {
+        try {
+            paymentService.capturePayPalOrder(orderId);
+            donationService.confirmPayPalDonation(id);
+            Donation donation = donationService.getLastCompletedDonation(id);
+            model.addAttribute("action", charityActionService.findById(id));
+            model.addAttribute("transactionId", "TX-" + (donation != null ? donation.getId() : orderId.substring(0, 8)));
+            model.addAttribute("amount", donation != null ? donation.getAmount() : "N/A");
+            return "actions/payment-success";
+        } catch (Exception e) {
+            return "redirect:/actions/" + id + "/donate/cancel";
+        }
     }
+
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
         CharityAction action = charityActionService.findByIdActive(id);
@@ -133,4 +147,39 @@ public class CharityActionController {
         model.addAttribute("currentUrl", "/actions/my-donations");
         return "actions/my-donations";
     }
+
+
+
+    // Afficher la page resume
+    @GetMapping("/{id}/donate/resume")
+    public String resumeDonationPage(@PathVariable Long id,
+                                     @RequestParam("donationId") Long donationId,
+                                     Model model) {
+        model.addAttribute("action", charityActionService.findById(id));
+        model.addAttribute("donation", donationService.findById(donationId));
+        return "actions/resume-donation";
+    }
+
+    // Continuer le paiement
+    @PostMapping("/{id}/donate/resume")
+    public String resumePayment(@PathVariable Long id,
+                                @RequestParam("donationId") Long donationId,
+                                Model model) {
+        try {
+            String redirectUrl = donationService.resumeDonation(id, donationId);
+            return "redirect:" + redirectUrl;
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/actions/" + id + "/donate/resume?donationId=" + donationId;
+        }
+    }
+
+    // Annuler le don → FAILED
+    @PostMapping("/{id}/donate/cancel-donation")
+    public String cancelDonation(@PathVariable Long id,
+                                 @RequestParam("donationId") Long donationId) {
+        donationService.cancelDonation(donationId);
+        return "redirect:/actions/my-donations";
+    }
+
 }

@@ -1,10 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8"/>
+    <title th:text="#{resume.title}">Reprendre mon don</title>
+    <th:block th:replace="~{layout/base :: common}"></th:block>
 </head>
-<body>
-$END$
+<body class="bg-[#f8f9ff] text-on-surface flex">
+
+<th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
+<th:block th:replace="~{layout/header :: topbar('donations.header',null,null)}"></th:block>
+
+<main class="ml-64 pt-16 min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-lg w-full bg-white rounded-3xl shadow-xl p-10">
+
+        <!-- Titre -->
+        <div class="mb-8">
+            <span class="text-xs font-bold uppercase tracking-widest bg-amber-50 text-amber-600 px-3 py-1 rounded-full"
+                  th:text="#{resume.badge}"></span>
+            <h2 class="text-2xl font-extrabold text-slate-800 mt-4 mb-2" th:text="#{resume.title}"></h2>
+            <p class="text-slate-500 text-sm">
+                <span th:text="#{resume.subtitle}"></span>
+                <strong class="text-slate-700" th:text="${action.title}"></strong>
+                <span th:text="#{resume.subtitle2}"></span>
+            </p>
+        </div>
+
+        <!-- Infos du don -->
+        <div class="bg-slate-50 rounded-2xl p-5 mb-8 space-y-3 text-sm">
+            <div class="flex justify-between">
+                <span class="text-slate-500 font-medium" th:text="#{resume.amount}"></span>
+                <span class="font-bold text-slate-800" th:text="${donation.amount} + ' MAD'"></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-slate-500 font-medium" th:text="#{resume.method}"></span>
+                <span class="font-bold text-slate-800" th:text="${donation.paymentMethod}"></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-slate-500 font-medium" th:text="#{resume.status}"></span>
+                <span class="font-bold text-amber-500" th:text="#{resume.pending}"></span>
+            </div>
+        </div>
+
+        <!-- Message selon méthode de paiement -->
+        <div th:if="${donation.paymentMethod.name() == 'PAYPAL'}"
+             class="mb-6 p-4 bg-blue-50 rounded-2xl text-sm text-blue-700 font-medium flex gap-2 items-start">
+            <span>💡</span>
+            <span th:text="#{resume.hint.paypal}"></span>
+        </div>
+        <div th:if="${donation.paymentMethod.name() == 'CREDIT_CARD'}"
+             class="mb-6 p-4 bg-purple-50 rounded-2xl text-sm text-purple-700 font-medium flex gap-2 items-start">
+            <span>💡</span>
+            <span th:text="#{resume.hint.card}"></span>
+        </div>
+        <div th:if="${donation.paymentMethod.name() == 'BANK_TRANSFER'}"
+             class="mb-6 p-4 bg-green-50 rounded-2xl text-sm text-green-700 font-medium flex gap-2 items-start">
+            <span>💡</span>
+            <span th:text="#{resume.hint.bank}"></span>
+        </div>
+
+        <!-- Boutons -->
+        <div class="space-y-3">
+
+            <!-- Continuer -->
+            <form method="post" th:action="@{/actions/{id}/donate/resume(id=${action.id})}">
+                <input type="hidden" name="donationId" th:value="${donation.id}"/>
+                <button type="submit"
+                        class="w-full py-4 bg-primary text-white rounded-2xl font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">play_circle</span>
+                    <span th:text="#{resume.btn.continue}"></span>
+                </button>
+            </form>
+
+            <!-- Annuler → FAILED -->
+            <form method="post" th:action="@{/actions/{id}/donate/cancel-donation(id=${action.id})}">
+                <input type="hidden" name="donationId" th:value="${donation.id}"/>
+                <button type="submit"
+                        th:onclick="'return confirm(\'' + #{resume.confirm} + '\')'"
+                        class="w-full py-4 bg-red-50 text-red-600 rounded-2xl font-bold text-sm hover:bg-red-100 transition flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">cancel</span>
+                    <span th:text="#{resume.btn.cancel}"></span>
+                </button>
+            </form>
+
+            <!-- Retour sans action -->
+            <a th:href="@{/actions/my-donations}"
+               th:text="#{resume.btn.back}"
+               class="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-bold text-sm hover:bg-slate-100 transition flex items-center justify-center gap-2 block text-center">
+            </a>
+
+        </div>
+    </div>
+</main>
+
 </body>
 </html>

@@ -4,14 +4,14 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Mes Dons</title>
+    <title th:text="'CharityAct | ' + #{mydonations.title} ">Mes Dons</title>
     <th:block th:replace="~{layout/base :: common}"></th:block>
 </head>
 <body class="bg-[#f8f9ff] text-on-surface">
 
 <th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
 
-<th:block th:replace="~{layout/header :: topbar('donations.header')}"></th:block>
+<th:block th:replace="~{layout/header :: topbar('donations.header', null, null)}"></th:block>
 
 <main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
 
@@ -85,21 +85,32 @@
                         <span class="font-black text-primary text-sm" th:text="${donation.amount} + ' MAD'"></span>
                     </td>
                     <td class="px-6 py-4">
-                            <span class="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-600"
-                                  th:text="${donation.paymentMethod == 'CREDIT_CARD'} ? #{donations.method.card} :
-          (${donation.paymentMethod == 'PAYPAL'} ? #{donations.method.paypal} : #{donations.method.bank})">
+                            <span class="text-xs font-bold bg-slate-100 px-2 py-1 rounded text-slate-600 whitespace-nowrap"
+                                  th:text="${donation.paymentMethod.name() == 'CREDIT_CARD'} ? #{donations.method.card} :
+                                 (${donation.paymentMethod.name() == 'PAYPAL'} ? #{donations.method.paypal} : #{donations.method.bank})">
                             </span>
                     </td>
                     <td class="px-6 py-4 text-sm text-on-surface-variant"
                         th:text="${donation.message != null ? donation.message : '—'}"></td>
                     <td class="px-6 py-4 text-sm text-on-surface-variant" th:text="${donation.donationDate}"></td>
                     <td class="px-6 py-4">
-                            <span th:text="${donation.status}"
-                                  th:class="${donation.status.name() == 'COMPLETED'} ? 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700' :
+                        <div class="flex items-center gap-2">
+                            <span th:text="${donation.status.name() == 'COMPLETED'} ? #{donations.status.completed} :
+                                           (${donation.status.name() == 'PENDING'} ? #{donations.status.pending} :
+                                           #{donations.status.failed})"
+                                                              th:class="${donation.status.name() == 'COMPLETED'} ? 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700' :
                                              (${donation.status.name() == 'PENDING'} ? 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700' :
                                              'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700')">
                             </span>
+
+                            <a th:if="${donation.status.name() == 'PENDING'}"
+                               th:href="@{/actions/{id}/donate/resume(id=${donation.charityAction.id}, donationId=${donation.id})}"
+                               class="inline-flex items-center px-3 py-1 bg-orange-500 text-white text-xs rounded-full font-bold hover:bg-orange-600 transition"
+                               th:text="#{donations.btn.resume}">
+                            </a>
+                        </div>
                     </td>
+
                 </tr>
                 </tbody>
             </table>

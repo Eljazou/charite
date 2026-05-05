@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Découvrir les Actions</title>
+  <title th:text="'CharityAct | ' + #{action.list.title} ">Découvrir les Actions</title>
   <th:block th:replace="~{layout/base :: common}"></th:block>
   <style>
     .ambient-shadow { box-shadow: 0 8px 32px rgba(0, 52, 94, 0.04); }
@@ -14,7 +14,7 @@
 
 <th:block th:replace="~{layout/sidebar :: sidebar}"></th:block>
 
-<th:block th:replace="~{layout/header :: topbar('actions.list.header')}"></th:block>
+<th:block th:replace="~{layout/header :: topbar('actions.list.header', null, null)}"></th:block>
 
 <main class="ml-64 pt-16 pb-12 px-10 min-h-screen">
 
@@ -27,10 +27,10 @@
     </div>
   </div>
 
-  <section class="flex justify-between items-end mb-10">
+  <section class="flex justify-between items-end mb-10 mt-6">
     <div>
-      <h2 class="text-4xl font-extrabold tracking-tight text-on-surface headline mb-2" th:text="#{actions.list.title}"></h2>
-      <p class="text-on-surface-variant text-lg" th:text="#{actions.list.subtitle}"></p>
+      <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1" th:text="#{actions.list.title}"></h2>
+      <p class="text-on-surface-variant" th:text="#{actions.list.subtitle}"></p>
     </div>
     <a sec:authorize="hasRole('ORG_ADMIN')" ...>
       <span class="material-symbols-outlined">add_circle</span>
