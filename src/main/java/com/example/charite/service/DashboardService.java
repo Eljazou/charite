@@ -3,9 +3,11 @@ package com.example.charite.service;
 import com.example.charite.dto.DashboardStats;
 import com.example.charite.entity.*;
 import com.example.charite.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,6 +24,7 @@ public class DashboardService {
     private final CharityActionRepository charityActionRepository;
     private final DonationRepository donationRepository;
 
+    @Transactional
     public DashboardStats getStats(String email) {
         User caller = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -43,6 +46,9 @@ public class DashboardService {
 
         Organization org = orgOpt.get();
         List<CharityAction> actions = charityActionRepository.findByOrganization(org);
+
+        charityActionRepository.closeExpiredActions(LocalDate.now());
+        actions = charityActionRepository.findByOrganization(org);
 
         BigDecimal totalCollected = actions.stream()
                 .map(CharityAction::getCollectedAmount)
